@@ -3,7 +3,7 @@
     "traineeId": 1,
     "trainerId": 2,
     "trainingName": "session N-1",
-    "trainingType": "group",
+    "trainingType": {"name": "group"},
     "trainingStart": "2026-02-03",
     "duration": 90
   }
