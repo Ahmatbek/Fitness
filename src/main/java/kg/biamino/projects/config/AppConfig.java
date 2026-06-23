@@ -48,7 +48,7 @@ public class AppConfig {
 
     @Bean
     public Map<String, User> users() {
-        return new InMemoryStorage().readTrainee(users, new TypeToken<List<User>>() {}.getType(), item -> String.valueOf(item.getId()));
+        return new InMemoryStorage().readTrainee(users, new TypeToken<List<User>>() {}.getType(), item -> String.valueOf(item.getUsername()));
     }
 
 
