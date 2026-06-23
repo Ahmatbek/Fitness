@@ -22,7 +22,7 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public Trainee updateTrainee(String userId, Trainee trainee) {
-        return trainees.computeIfAbsent(userId, id -> trainee);
+        return trainees.put(userId, trainee);
     }
 
     @Override
