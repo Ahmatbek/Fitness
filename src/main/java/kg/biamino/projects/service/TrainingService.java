@@ -1,5 +1,6 @@
 package kg.biamino.projects.service;
 
+import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.model.Training;
 
 import java.util.List;
@@ -9,5 +10,5 @@ public interface TrainingService {
 
     List<Training> getAllTrainings();
 
-    Training createTraining(String name, Training training);
+    Training createTraining(TrainingDto training);
 }

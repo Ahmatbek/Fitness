@@ -6,11 +6,14 @@ import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.service.TrainerService;
 import kg.biamino.projects.service.UserService;
+import kg.biamino.projects.utils.ValidationInput;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 
 @Service
 @Slf4j
@@ -46,7 +49,7 @@ public class TrainerServiceImpl implements TrainerService {
         User user = userService.createUser(trainerDto);
 
         Trainer trainer = new Trainer();
-        trainer.setSpecialization(trainerDto.getSpecialization());
+        trainer.setSpecialization(trainerDto.getSpecialization()!=null?trainerDto.getSpecialization():"");
         trainer.setUserId(user.getId());
 
         log.info("Creating trainer with id {}", user.getId());
@@ -56,14 +59,10 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public Trainer updateTrainer(String username, TrainerDto trainerDto) {
         log.info("Updating trainer with username {}", username);
-        if(trainerDto == null) {
-            throw new IllegalArgumentException("Trainer must not be null");
-        }
+        nullChecker(trainerDto, "trainerDto");
         User user = userService.updateUsersName(username, trainerDto);
         Trainer trainer = trainerDao.getTrainer(String.valueOf(user.getId()));
-        if(trainer == null) {
-            throw new IllegalArgumentException("Trainer does not exist");
-        }
+        nullChecker(trainer, "Trainer");
         trainer.setSpecialization(trainerDto.getSpecialization()!=null ? trainerDto.getSpecialization() : trainer.getSpecialization());
 
         return trainerDao.updateTrainer(String.valueOf(user.getId()), trainer);

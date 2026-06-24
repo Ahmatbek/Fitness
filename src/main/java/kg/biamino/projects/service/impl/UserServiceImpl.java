@@ -1,6 +1,7 @@
 package kg.biamino.projects.service.impl;
 
 import jakarta.annotation.PostConstruct;
+import kg.biamino.projects.dao.UserDao;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.service.UserService;
@@ -8,35 +9,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.Map;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private Map<String, User> users;
+
+    private UserDao userDao;
 
     private AtomicInteger counter = new AtomicInteger();
 
-    public UserServiceImpl() {}
+    @Autowired
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Override
+    public List<User> getAllUsers(){
+        return userDao.getAllUsers();
+    }
 
     @Override
     public User createUser(UserDto user) {
+
+        nullChecker(user, "user");
         User user1 = new User();
         user1.setId((long)counter.incrementAndGet());
-        user1.setFirstName(user.getFirstName());
-        user1.setLastName(user.getLastName());
+        user1.setFirstName(user.getFirstName()!=null?user.getFirstName():"");
+        user1.setLastName(user.getLastName()!=null?user.getLastName():"");
         user1.setUsername(generateUsername(user.getFirstName(), user.getLastName()));
         user1.setPassword(generateThePassword());
-        users.put(user1.getUsername(), user1);
-        return user1;
+        user1.setIsActive(true);
+        return userDao.createUser(user1);
     }
 
     private String generateThePassword(){
         SecureRandom random = new SecureRandom();
         String pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~`!@#$%^&*()-_=+[{]}\\|;:\'\",<.>/?";
         char[] password = new char[10];
-        for(int i=0; i<10; i++){
+        for(int i=0; i< password.length; i++){
             int index = random.nextInt(pool.length());
             password[i]=(pool.charAt(index));
         }
@@ -45,20 +58,20 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateUsername(String firstName, String lastName) {
-        if(firstName == null || lastName == null) {
+        if(firstName == null || lastName == null || firstName.isBlank() || lastName.isBlank()) {
             throw new IllegalArgumentException("First and last name cannot be null");
         }
         StringBuilder username = new StringBuilder();
         username.append(firstName);
         username.append(".");
         username.append(lastName);
-        if(users.containsKey(username.toString())) {
+        if(userDao.getUserByUsername(username.toString())!=null) {
             int sequence = 1;
             String uniqueUsername;
 
             while(true){
                 uniqueUsername = username.toString()+sequence;
-                if(users.containsKey(uniqueUsername)) {
+                if(userDao.getUserByUsername(uniqueUsername)!=null) {
                     sequence++;
                 }else{
                     break;
@@ -74,8 +87,8 @@ public class UserServiceImpl implements UserService {
     @PostConstruct
     public void init(){
         Long maxUserId= 0L;
-        for(Map.Entry<String, User> entries : users.entrySet()){
-            User user = entries.getValue();
+        List<User> userList = userDao.getAllUsers();
+        for(User user: userList) {
             if(user.getId()>maxUserId){
                 maxUserId= user.getId();
             }
@@ -86,19 +99,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUsersName(String username, UserDto userDto){
-        if(userDto == null) {
-            throw new IllegalArgumentException("User cannot be null");
-        }
-        User user = users.get(username);
-        if(user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
+        nullChecker(userDto, "userDto");
+        User user = userDao.getUserByUsername(username);
+        nullChecker(user, "user");
         user.setFirstName(userDto.getFirstName() != null ? userDto.getFirstName() : null);
-        user.setLastName(userDto.getFirstName() != null ? userDto.getFirstName() : null);
+        user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : null);
         user.setUsername(generateUsername(user.getFirstName(), user.getLastName()));
         user.setPassword(generateThePassword());
-        users.put(user.getUsername(), user);
+        user.setIsActive(true);
+        userDao.updateUser(user);
         return user;
+    }
+
+    @Override
+    public void deleteUser(String username) {
+        userDao.deleteUser(username);
+    }
+
+    @Override
+    public User findUserByUsername(String username){
+        return userDao.getUserByUsername(username);
     }
 
 }

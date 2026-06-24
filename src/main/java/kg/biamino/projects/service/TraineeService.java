@@ -1,5 +1,6 @@
 package kg.biamino.projects.service;
 
+import kg.biamino.projects.dto.TraineeDto;
 import kg.biamino.projects.model.Trainee;
 
 import java.util.List;
@@ -9,7 +10,9 @@ public interface TraineeService {
 
     List<Trainee> getAllTrainees();
 
-    Trainee createTrainee(Long id, Trainee trainee);
+    Trainee createTrainee(TraineeDto trainee);
 
-    Trainee updateTrainee(Long id, Trainee trainee);
+    Trainee updateTrainee(String username, TraineeDto trainee);
+
+    void deleteTrainee(String username);
 }
