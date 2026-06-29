@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 public class Trainee {
-     LocalDate localDate;
+     LocalDate dateOfBirth;
      String address;
      Long userId;
 

@@ -5,21 +5,25 @@ import kg.biamino.projects.dao.UserDao;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static kg.biamino.projects.utils.ValidationInput.nullChecker;
+import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private UserDao userDao;
 
-    private AtomicInteger counter = new AtomicInteger();
+    private final AtomicLong counter = new AtomicLong();
+    private final SecureRandom random = new SecureRandom();
 
     @Autowired
     public void setUserDao(UserDao userDao) {
@@ -28,6 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUsers(){
+        log.info("Getting all users");
         return userDao.getAllUsers();
     }
 
@@ -35,18 +40,20 @@ public class UserServiceImpl implements UserService {
     public User createUser(UserDto user) {
 
         nullChecker(user, "user");
+        stringChecker(user.getFirstName(), "userDto");
+        stringChecker(user.getLastName(), "userDto");
         User user1 = new User();
-        user1.setId((long)counter.incrementAndGet());
-        user1.setFirstName(user.getFirstName()!=null?user.getFirstName():"");
-        user1.setLastName(user.getLastName()!=null?user.getLastName():"");
+        user1.setId(counter.incrementAndGet());
+        user1.setFirstName(user.getFirstName());
+        user1.setLastName(user.getLastName());
         user1.setUsername(generateUsername(user.getFirstName(), user.getLastName()));
         user1.setPassword(generateThePassword());
         user1.setIsActive(true);
+        log.info("Created user {}", user1);
         return userDao.createUser(user1);
     }
 
     private String generateThePassword(){
-        SecureRandom random = new SecureRandom();
         String pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~`!@#$%^&*()-_=+[{]}\\|;:\'\",<.>/?";
         char[] password = new char[10];
         for(int i=0; i< password.length; i++){
@@ -54,6 +61,7 @@ public class UserServiceImpl implements UserService {
             password[i]=(pool.charAt(index));
         }
         return String.valueOf(password);
+
 
     }
 
@@ -86,14 +94,17 @@ public class UserServiceImpl implements UserService {
 
     @PostConstruct
     public void init(){
-        Long maxUserId= 0L;
+        long maxUserId= 0L;
         List<User> userList = userDao.getAllUsers();
         for(User user: userList) {
+            if(user.getId()==null || user.getId() <=0) {
+                continue;
+            }
             if(user.getId()>maxUserId){
                 maxUserId= user.getId();
             }
         }
-        counter=new AtomicInteger(maxUserId.intValue());
+        counter.set(maxUserId);
 
     }
 
@@ -102,22 +113,23 @@ public class UserServiceImpl implements UserService {
         nullChecker(userDto, "userDto");
         User user = userDao.getUserByUsername(username);
         nullChecker(user, "user");
-        user.setFirstName(userDto.getFirstName() != null ? userDto.getFirstName() : null);
-        user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : null);
-        user.setUsername(generateUsername(user.getFirstName(), user.getLastName()));
-        user.setPassword(generateThePassword());
+        user.setFirstName(userDto.getFirstName() != null ? userDto.getFirstName() : user.getFirstName());
+        user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : user.getLastName());
         user.setIsActive(true);
+        log.info("Updated user {}", user.getFirstName());
         userDao.updateUser(user);
         return user;
     }
 
     @Override
     public void deleteUser(String username) {
+        log.info("Deleting user {}", username);
         userDao.deleteUser(username);
     }
 
     @Override
     public User findUserByUsername(String username){
+        log.info("Finding user {}", username);
         return userDao.getUserByUsername(username);
     }
 
