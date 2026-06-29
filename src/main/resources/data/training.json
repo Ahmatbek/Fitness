@@ -2,7 +2,15 @@
   {
     "traineeId": 1,
     "trainerId": 2,
-    "trainingName": "session N-1",
+    "trainingName": "session-111",
+    "trainingType": {"name": "group"},
+    "trainingStart": "2026-02-03",
+    "duration": 90
+  },
+  {
+    "traineeId": 1,
+    "trainerId": 2,
+    "trainingName": "session 112",
     "trainingType": {"name": "group"},
     "trainingStart": "2026-02-03",
     "duration": 90

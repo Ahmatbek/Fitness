@@ -2,7 +2,6 @@ package kg.biamino.projects.service.impl;
 
 import kg.biamino.projects.dao.TrainingDao;
 import kg.biamino.projects.dto.TrainingDto;
-import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.service.TrainingService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public Training getTrainingById(String name) {
+    public Training getTrainingByName(String name) {
         log.info("Getting training by name {}", name);
         return trainingDao.getTraining(name);
     }
@@ -70,12 +69,12 @@ public class TrainingServiceImpl implements TrainingService {
         integerChecker(trainingDto.getDuration(), "trainingDto.duration");
 
         if(trainingDto.getTrainingName().isBlank()) {
-            throw new IllegalArgumentException("TrainingDto is null");
+            throw new IllegalArgumentException("TrainingDto name is blank");
+        }
+        if(trainingDto.getTrainingStart().isBefore(LocalDate.now())){
+            throw new IllegalArgumentException("trainingStart start is cant be in the past");
         }
 
-        if(trainingDto.getTrainingStart().isAfter(LocalDate.now())){
-            throw new IllegalArgumentException("TrainingStart is null");
-        }
 
 
     }

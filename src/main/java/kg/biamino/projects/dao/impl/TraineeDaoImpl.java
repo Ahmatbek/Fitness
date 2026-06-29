@@ -12,8 +12,12 @@ import java.util.Map;
 @Repository
 public class TraineeDaoImpl implements TraineeDao {
 
-    @Autowired
     private Map<String, Trainee> trainees;
+
+    @Autowired
+    public void setTrainees(Map<String, Trainee> trainees) {
+        this.trainees = trainees;
+    }
 
     @Override
     public Trainee getTrainee(String userId) {
@@ -22,7 +26,8 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public Trainee updateTrainee(String userId, Trainee trainee) {
-        return trainees.put(userId, trainee);
+         trainees.put(userId, trainee);
+         return trainee;
     }
 
     @Override
@@ -32,7 +37,9 @@ public class TraineeDaoImpl implements TraineeDao {
 
     @Override
     public Trainee createTrainee(String userId, Trainee trainee) {
-        return trainees.put(userId, trainee);
+         trainees.put(userId, trainee);
+         return trainee;
+
     }
 
     @Override

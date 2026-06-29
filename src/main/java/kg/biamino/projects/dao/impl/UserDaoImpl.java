@@ -31,12 +31,14 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User createUser(User user){
-      return userMap.put(user.getUsername(), user);
+      userMap.put(user.getUsername(), user);
+      return user;
     }
 
     @Override
     public User updateUser(User user){
-        return userMap.put(user.getUsername(), user);
+        userMap.put(user.getUsername(), user);
+        return user;
     }
 
     @Override

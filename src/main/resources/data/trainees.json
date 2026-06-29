@@ -2,26 +2,16 @@
   {
     "localDate": "2024-01-15",
     "address": "123 Main Street, Bishkek, Kyrgyzstan",
-    "userId": 1001
+    "userId": 1
   },
   {
     "localDate": "2024-03-22",
     "address": "456 Elm Avenue, Osh, Kyrgyzstan",
-    "userId": 1002
+    "userId": 2
   },
   {
     "localDate": "2024-06-10",
     "address": "789 Oak Boulevard, Almaty, Kazakhstan",
-    "userId": 1003
-  },
-  {
-    "localDate": "2025-02-28",
-    "address": "321 Pine Road, Ankara, Turkey",
-    "userId": 1004
-  },
-  {
-    "localDate": "2025-07-04",
-    "address": "654 Maple Lane, Berlin, Germany",
-    "userId": 1005
+    "userId": 3
   }
 ]

@@ -6,7 +6,7 @@ import kg.biamino.projects.model.Training;
 import java.util.List;
 
 public interface TrainingService {
-    Training getTrainingById(String name);
+    Training getTrainingByName(String name);
 
     List<Training> getAllTrainings();
 

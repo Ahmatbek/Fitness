@@ -1,3 +1,5 @@
+package service;
+
 import kg.biamino.projects.dao.UserDao;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.User;
@@ -14,8 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -36,7 +37,13 @@ public class UserServiceTest {
     void setUp() {
         users = new HashMap<>();
         user = new User(1L, "Akhmatbek", "Tursunbaev", "Akhmatbek.Tursunbaev","qwertyasdfg", true);
+        User user1 = new User(2L,"Akhmatbek", "Tursunbaev", "Akhmatbek.Tursunbaev1","qwertyasdfg", true);
         users.put(user.getUsername(), user);
+        users.put(user1.getUsername(), user1);
+
+        when(userDao.getAllUsers()).thenReturn(new ArrayList<>(users.values()));
+
+        userService.init();
 
         userDto =  new UserDto("Akhmatbek", "Tursunbaev");
 
@@ -121,6 +128,52 @@ public class UserServiceTest {
         assertEquals(users.size(),userList.size());
         verify(userDao,times(1)).getAllUsers();
     }
+
+    @Test
+    void shouldProduceIncrementedUsername(){
+        UserDto userDto =  new UserDto("Akhmatbek", "Tursunbaev");
+
+        when(userDao.createUser(any())).thenAnswer(i -> i.<User>getArgument(0));
+        when(userDao.getUserByUsername("Akhmatbek.Tursunbaev")).thenReturn(user);
+        when(userDao.getUserByUsername("Akhmatbek.Tursunbaev1")).thenReturn(user);
+
+        User userLocal = userService.createUser(userDto);
+
+        assertNotNull(userLocal);
+        assertEquals(userDto.getFirstName(), userLocal.getFirstName());
+        assertEquals(userDto.getLastName(), userLocal.getLastName());
+        assertEquals(userLocal.getUsername(), user.getUsername()+"2");
+    }
+    @Test
+    void shouldThrow_illegalArgumentException_firstNameBlank(){
+        UserDto userDto =  new UserDto("", "Tursunbaev");
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(userDto));
+    }
+
+    @Test
+    void shouldThrow_illegalArgumentException_lastNameBlank(){
+        UserDto userDto =  new UserDto("Akhmatbek", "");
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(userDto));
+    }
+
+    @Test
+    void shouldThrow_illegalArgumentException_firstNameNull(){
+        UserDto userDto =  new UserDto(null, "Tursunbaev");
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(userDto));
+    }
+
+    @Test
+    void shouldThrow_illegalArgumentException_lastNameNull(){
+        UserDto userDto =  new UserDto("Akhmatbek", null);
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(userDto));
+    }
+
+    @Test
+    void shouldThrow_illegalArgumentException_dtoNull(){
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsersName(null, null));
+    }
+
+
 
 
 

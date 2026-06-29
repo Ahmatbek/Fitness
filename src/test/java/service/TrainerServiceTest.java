@@ -1,3 +1,5 @@
+package service;
+
 import kg.biamino.projects.dao.TrainerDao;
 import kg.biamino.projects.dto.TrainerDto;
 import kg.biamino.projects.dto.UserDto;
@@ -18,8 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -49,6 +50,7 @@ class TrainerServiceTest {
         user.setFirstName("Nasty");
 
         trainerService.setTrainerDao(trainerDao);
+        trainerService.setUserService(userService);
         trainers = new HashMap<>();
 
         trainer = new Trainer();
@@ -107,7 +109,7 @@ class TrainerServiceTest {
 
     @Test
     void updateTest(){
-        User updated = new User(1L,"Tilek", "Toktobaev", "password", "Tilek.Toktobaev",true);
+        User updated = new User(1L,"Tilek", "Toktobaev", "Tilek.Toktobaev", "password",true);
         TrainerDto trainerDto1 = new TrainerDto(updated.getFirstName(), updated.getLastName(),"MMA");
 
         ArgumentCaptor<TrainerDto> argumentCaptor = ArgumentCaptor.forClass(TrainerDto.class);
@@ -126,4 +128,38 @@ class TrainerServiceTest {
         assertEquals(trainerDto1.getLastName(), argumentCaptor.getValue().getLastName());
     }
 
+    @Test
+    void shouldThrowIllegalArgumentException(){
+        assertThrows(IllegalArgumentException.class, ()->trainerService.createTrainer(null));
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentException_specialization(){
+        trainerDto.setSpecialization(null);
+        assertThrows(IllegalArgumentException.class, ()->trainerService.createTrainer(trainerDto));
+    }
+
+
+
+    @Test
+    void shouldThrowIllegalArgumentException_firstName(){
+        trainerDto.setFirstName(null);
+        assertThrows(IllegalArgumentException.class, ()->trainerService.createTrainer(trainerDto));
+    }
+
+
+    @Test
+    void shouldThrowIllegalArgumentException_LastName(){
+        trainerDto.setLastName(null);
+        assertThrows(IllegalArgumentException.class, ()->trainerService.createTrainer(trainerDto));
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentException_onUpdateDtoNull(){
+        assertThrows(IllegalArgumentException.class, ()->trainerService.updateTrainer(user.getUsername(),null));
+    }
+    @Test
+    void shouldThrowIllegalArgumentException_onUpdateUserNameNull(){
+        assertThrows(IllegalArgumentException.class, ()->trainerService.updateTrainer(null,trainerDto));
+    }
 }

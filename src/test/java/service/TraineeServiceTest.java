@@ -1,8 +1,9 @@
+package service;
+
 import kg.biamino.projects.dao.TraineeDao;
 import kg.biamino.projects.dto.TraineeDto;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.Trainee;
-import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.service.UserService;
 import kg.biamino.projects.service.impl.TraineeServiceImpl;
@@ -47,10 +48,10 @@ class TraineeServiceTest {
         user = new User(1L, "Akhmatbek", "Tursunbaev", "Akhmatbek.Tursunbaev","qwertyasdfg", true);
         trainee = new Trainee(LocalDate.now(), "Bishkek", user.getId());
         traineeDto = new TraineeDto("Akhmatbek","Tursunbaev", "Bishkek", LocalDate.now());
-//        userDto=new UserDto("Akhmatbek", "Tursunbaev");
 
         trainees = new HashMap<>();
         traineeService.setTraineeDao(traineeDao);
+        traineeService.setUserService(userService);
         trainees.put(user.getUsername(),trainee);
 
 
@@ -68,7 +69,7 @@ class TraineeServiceTest {
 
     @Test
     void getTraineeById() {
-        when(traineeDao.getTrainee("1")).thenReturn(trainees.get(user.getUsername()));
+        when(traineeDao.getTrainee(any())).thenReturn(trainees.get(user.getUsername()));
 
         Trainee trainee = traineeService.getTraineeById(1L);
 
@@ -88,7 +89,7 @@ class TraineeServiceTest {
 
         assertNotNull(trainee1);
         assertEquals(trainee1.getAddress(),"Bishkek");
-        assertEquals(trainee1.getLocalDate(), LocalDate.now());
+        assertEquals(trainee1.getDateOfBirth(), LocalDate.now());
         assertEquals("Akhmatbek", argumentCaptor.getValue().getFirstName());
         assertEquals("Tursunbaev", argumentCaptor.getValue().getLastName());
 
@@ -97,7 +98,7 @@ class TraineeServiceTest {
 
     @Test
     void updateTrainee() {
-        User updated = new User(1L,"Tilek", "Toktobaev", "password", "Tilek.Toktobaev",true);
+        User updated = new User(1L,"Tilek", "Toktobaev", "Tilek.Toktobaev","password",true);
         TraineeDto traineeDto1 = new TraineeDto(updated.getFirstName(), updated.getLastName(), "Osh", LocalDate.of(2025,12,2));
 
         ArgumentCaptor<TraineeDto> argumentCaptor = ArgumentCaptor.forClass(TraineeDto.class);
@@ -111,7 +112,7 @@ class TraineeServiceTest {
 
         assertNotNull(trainee1);
         assertEquals(trainee1.getAddress(),traineeDto1.getAddress());
-        assertEquals(trainee1.getLocalDate(), traineeDto1.getDateOfBirth());
+        assertEquals(trainee1.getDateOfBirth(), traineeDto1.getDateOfBirth());
         assertEquals(traineeDto1.getFirstName(), argumentCaptor.getValue().getFirstName());
         assertEquals(traineeDto1.getLastName(), argumentCaptor.getValue().getLastName());
     }
@@ -129,5 +130,49 @@ class TraineeServiceTest {
 
     }
 
+    @Test
+    void shouldThrow_nullDto_IllegalArgumentException(){
+        assertThrows(IllegalArgumentException.class, () -> traineeService.createTrainee(null));
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentException_dateOfBirth_null(){
+        traineeDto.setDateOfBirth(null);
+        assertThrows(IllegalArgumentException.class, () -> traineeService.createTrainee(traineeDto));
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentException_dateOfBirth_inFuture(){
+        traineeDto.setDateOfBirth(LocalDate.now().plusDays(1));
+        assertThrows(IllegalArgumentException.class, () -> traineeService.createTrainee(traineeDto));
+    }
+
+    @Test
+    void shouldSucceed_dateOfBirth_today(){
+        traineeDto.setDateOfBirth(LocalDate.now());
+        when(userService.createUser(any())).thenReturn(user);
+        when(traineeDao.createTrainee(any(), any(Trainee.class))).thenReturn(trainee);
+        Trainee trainee1 = traineeService.createTrainee(traineeDto);
+
+        assertNotNull(trainee1);
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionDTO_null(){
+        assertThrows(IllegalArgumentException.class, () -> traineeService.updateTrainee("assa",null));
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionDateOfBirth_isFuture(){
+        traineeDto.setDateOfBirth(LocalDate.now().plusDays(1));
+        assertThrows(IllegalArgumentException.class, () -> traineeService.updateTrainee(user.getUsername(),traineeDto));
+    }
+
+    @Test
+    void  traineeShouldBeNull(){
+        Trainee trainee1 = traineeService.getTraineeById(null);
+
+        assertNull(trainee1);
+    }
 
 }

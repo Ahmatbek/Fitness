@@ -20,15 +20,17 @@ import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 public class TraineeServiceImpl implements TraineeService {
 
     private TraineeDao traineeDao;
-    private final UserService userService;
+    private UserService userService;
 
-    public TraineeServiceImpl(UserService userService) {
-        this.userService = userService;
-    }
 
     @Autowired
     public void setTraineeDao(TraineeDao traineeDao) {
         this.traineeDao = traineeDao;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -52,8 +54,9 @@ public class TraineeServiceImpl implements TraineeService {
 
 
         Trainee trainee = new Trainee();
-        trainee.setAddress(traineeDto.getAddress() != null ? traineeDto.getAddress() : "");
-        trainee.setLocalDate(traineeDto.getDateOfBirth() != null ? traineeDto.getDateOfBirth() : LocalDate.now());
+        trainee.setAddress(traineeDto.getAddress());
+        trainee.setDateOfBirth(traineeDto.getDateOfBirth());
+        trainee.setUserId(user.getId());
 
         return traineeDao.createTrainee(String.valueOf(user.getId()), trainee);
     }
@@ -66,8 +69,8 @@ public class TraineeServiceImpl implements TraineeService {
 
         Trainee trainee = traineeDao.getTrainee(String.valueOf(user.getId()));
         nullChecker(trainee,"trainee");
-        trainee.setLocalDate(traineeDto.getDateOfBirth() != null ? traineeDto.getDateOfBirth() : LocalDate.now());
-        trainee.setAddress(traineeDto.getAddress() != null ? traineeDto.getAddress() : "");
+        trainee.setDateOfBirth(traineeDto.getDateOfBirth());
+        trainee.setAddress(traineeDto.getAddress() != null ? traineeDto.getAddress() : trainee.getAddress());
 
         return traineeDao.updateTrainee(String.valueOf(user.getId()), trainee);
     }
@@ -83,7 +86,7 @@ public class TraineeServiceImpl implements TraineeService {
 
 
     private void dateValidation(TraineeDto traineeDto) {
-        if(traineeDto.getDateOfBirth() == null || traineeDto.getDateOfBirth().isAfter(LocalDate.now())) {
+        if(traineeDto == null || traineeDto.getDateOfBirth() == null || traineeDto.getDateOfBirth().isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Invalid date of birth");
         }
     }
