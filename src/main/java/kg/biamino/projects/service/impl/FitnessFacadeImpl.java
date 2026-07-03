@@ -1,18 +1,24 @@
 package kg.biamino.projects.service.impl;
 
+import kg.biamino.projects.dto.AuthUserDto;
 import kg.biamino.projects.dto.TraineeDto;
 import kg.biamino.projects.dto.TrainerDto;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
+import kg.biamino.projects.records.ProfilePasswordChange;
 import kg.biamino.projects.service.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.AuthenticationException;
 import java.util.List;
 
 @Service
+@Slf4j
 public class FitnessFacadeImpl implements FitnessFacade {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
@@ -26,6 +32,7 @@ public class FitnessFacadeImpl implements FitnessFacade {
     }
 
     @Override
+    @Transactional
     public Trainer createTrainer(TrainerDto trainerDto){
        return trainerService.createTrainer(trainerDto);
     }
@@ -41,7 +48,7 @@ public class FitnessFacadeImpl implements FitnessFacade {
     }
     @Override
     public Trainer getTrainerByUserId(Long userId){
-        return trainerService.getTrainer(userId);
+        return trainerService.getTrainerById(userId);
     }
 
     @Override
@@ -60,18 +67,19 @@ public class FitnessFacadeImpl implements FitnessFacade {
     }
 
     @Override
+    @Transactional
     public Trainee createTrainee(TraineeDto traineeDto){
         return traineeService.createTrainee(traineeDto);
     }
 
     @Override
-    public void deleteTraineeByUsername(String username){
-        traineeService.deleteTrainee(username);
+    public void deleteTraineeById(Long traineeId){
+        traineeService.deleteTraineeById(traineeId);
     }
 
     @Override
-    public Training getTrainingByName(String name){
-        return trainingService.getTrainingByName(name);
+    public Training getTrainingById(Long id){
+        return trainingService.getTrainingById(id);
     }
 
     @Override
@@ -82,5 +90,45 @@ public class FitnessFacadeImpl implements FitnessFacade {
     @Override
     public Training createTraining(TrainingDto trainingDto){
         return trainingService.createTraining(trainingDto);
+    }
+
+    @Override
+    public Trainee getTraineeByUsername(AuthUserDto authUserDto){
+        try{
+            return traineeService.findByUsername(authUserDto);
+        }catch (AuthenticationException e){
+            log.error("Authentication failed {}",e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Trainer getTrainerByUsername(AuthUserDto authUserDto){
+        try{
+            return trainerService.findByUsername(authUserDto);
+        }catch (AuthenticationException e){
+            log.error("Authentication failed {}",e.getMessage());
+            throw new RuntimeException("Authentication failed"+e);
+        }
+    }
+
+    @Override
+    public Trainer passwordChangeTrainer(ProfilePasswordChange profilePasswordChange) {
+       try{
+           return trainerService.passwordChange(profilePasswordChange);
+       }catch (AuthenticationException e){
+           log.error("Authentication failed {}",e.getMessage());
+           throw new RuntimeException("Authentication failed"+e);
+       }
+    }
+
+    @Override
+    public Trainee passwordChangeTrainee(ProfilePasswordChange profilePasswordChange) {
+        try{
+            return traineeService.passwordChange(profilePasswordChange);
+        }catch (AuthenticationException e){
+            log.error("Authentication failed {}",e.getMessage());
+            throw new RuntimeException("Authentication failed"+e);
+        }
     }
 }

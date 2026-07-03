@@ -1,31 +1,38 @@
 package kg.biamino.projects.service.impl;
 
-import kg.biamino.projects.dao.TraineeDao;
+import kg.biamino.projects.dto.AuthUserDto;
 import kg.biamino.projects.dto.TraineeDto;
 import kg.biamino.projects.model.Trainee;
+import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.User;
+import kg.biamino.projects.records.ProfilePasswordChange;
+import kg.biamino.projects.repository.TraineeRepository;
 import kg.biamino.projects.service.TraineeService;
 import kg.biamino.projects.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.AuthenticationException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import static kg.biamino.projects.utils.ValidationInput.nullChecker;
+import static kg.biamino.projects.utils.ValidationInput.stringChecker;
+
 
 @Service
 @Slf4j
 public class TraineeServiceImpl implements TraineeService {
 
-    private TraineeDao traineeDao;
+    private TraineeRepository traineeRepository;
     private UserService userService;
 
 
     @Autowired
-    public void setTraineeDao(TraineeDao traineeDao) {
-        this.traineeDao = traineeDao;
+    public void setTraineeDao(TraineeRepository traineeRepository) {
+        this.traineeRepository = traineeRepository;
     }
 
     @Autowired
@@ -34,19 +41,22 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Trainee getTraineeById(Long id) {
         log.info("Getting trainee by id: {}", id);
-        return traineeDao.getTrainee(String.valueOf(id));
+        return traineeRepository.findById(id).orElseThrow(()-> new NoSuchElementException("Trainee with id " + id + " not found"));
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Trainee> getAllTrainees() {
         log.info("Getting all trainees");
-        return traineeDao.getAllTrainees();
+        return traineeRepository.findAll();
     }
 
     @Override
+    @Transactional
     public Trainee createTrainee(TraineeDto traineeDto) {
         dateValidation(traineeDto);
         log.info("Creating trainee: {}", traineeDto);
@@ -56,33 +66,57 @@ public class TraineeServiceImpl implements TraineeService {
         Trainee trainee = new Trainee();
         trainee.setAddress(traineeDto.getAddress());
         trainee.setDateOfBirth(traineeDto.getDateOfBirth());
-        trainee.setUserId(user.getId());
+        trainee.setUser(user);
 
-        return traineeDao.createTrainee(String.valueOf(user.getId()), trainee);
+
+        return traineeRepository.save(trainee);
     }
 
     @Override
     public Trainee updateTrainee(String username, TraineeDto traineeDto) {
-        dateValidation(traineeDto);
-        log.info("Updating trainee: {}", traineeDto);
-        User user = userService.updateUsersName(username, traineeDto);
+//        dateValidation(traineeDto);
+//        log.info("Updating trainee: {}", traineeDto);
+//        User user = userService.updateUsersName(username, traineeDto);
 
-        Trainee trainee = traineeDao.getTrainee(String.valueOf(user.getId()));
-        nullChecker(trainee,"trainee");
-        trainee.setDateOfBirth(traineeDto.getDateOfBirth());
-        trainee.setAddress(traineeDto.getAddress() != null ? traineeDto.getAddress() : trainee.getAddress());
+//        Trainee trainee = traineeRepository.findById(user.getId());
+//        nullChecker(trainee,"trainee");
+//        trainee.setDateOfBirth(traineeDto.getDateOfBirth());
+//        trainee.setAddress(traineeDto.getAddress() != null ? traineeDto.getAddress() : trainee.getAddress());
 
-        return traineeDao.updateTrainee(String.valueOf(user.getId()), trainee);
+//        return traineeRepository.update(trainee);
+        return null;
     }
 
     @Override
-    public void deleteTrainee(String username){
-        log.info("Deleting trainee: {}", username);
-        User user = userService.findUserByUsername(username);
-        nullChecker(user,"username");
-        traineeDao.deleteTrainee(String.valueOf(user.getId()));
-        userService.deleteUser(username);
+    @Transactional
+    public void deleteTraineeById(Long id){
+        traineeRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Trainee findByUsername(AuthUserDto authUserDto) throws AuthenticationException {
+        if(userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword())){
+            stringChecker(authUserDto.getUsername(), "username");
+            User user = userService.findUserByUsername(authUserDto.getUsername());
+            return traineeRepository.findByUsername(user.getUsername())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid username"));
+        }
+        throw new AuthenticationException("Invalid username");
+    }
+
+
+    @Override
+    public Trainee passwordChange(ProfilePasswordChange profilePasswordChange) throws AuthenticationException {
+        if(userService.userAuthenticated(profilePasswordChange.username(), profilePasswordChange.oldPassword())){
+            User user = userService.findUserByUsername(profilePasswordChange.username());
+            userService.changePassword(user, profilePasswordChange.newPassword());
+            return traineeRepository.findByUsername(user.getUsername()).orElseThrow(()-> new NoSuchElementException("Invalid username"));
+        }
+        throw new AuthenticationException("Authentication failed"+profilePasswordChange.username());
+    }
+
+
 
 
     private void dateValidation(TraineeDto traineeDto) {

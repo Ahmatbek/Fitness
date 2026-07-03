@@ -1,11 +1,13 @@
 package kg.biamino.projects.service;
 
+import kg.biamino.projects.dto.AuthUserDto;
 import kg.biamino.projects.dto.TraineeDto;
 import kg.biamino.projects.dto.TrainerDto;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
+import kg.biamino.projects.records.ProfilePasswordChange;
 
 import java.util.List;
 
@@ -27,11 +29,19 @@ public interface FitnessFacade {
 
     Trainee createTrainee(TraineeDto traineeDto);
 
-    void deleteTraineeByUsername(String username);
+    void deleteTraineeById(Long traineeId);
 
-    Training getTrainingByName(String name);
+    Training getTrainingById(Long id);
 
     List<Training> getAllTrainings();
 
     Training createTraining(TrainingDto trainingDto);
+
+    Trainee getTraineeByUsername(AuthUserDto authUserDto);
+
+    Trainer getTrainerByUsername(AuthUserDto authUserDto);
+
+    Trainer passwordChangeTrainer(ProfilePasswordChange profilePasswordChange);
+
+    Trainee passwordChangeTrainee(ProfilePasswordChange profilePasswordChange);
 }

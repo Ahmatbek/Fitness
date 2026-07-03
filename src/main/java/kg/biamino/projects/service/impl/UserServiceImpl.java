@@ -1,17 +1,18 @@
 package kg.biamino.projects.service.impl;
 
-import jakarta.annotation.PostConstruct;
-import kg.biamino.projects.dao.UserDao;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.User;
+import kg.biamino.projects.records.ProfilePasswordChange;
+import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.NoSuchElementException;
 
 import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 import static kg.biamino.projects.utils.ValidationInput.stringChecker;
@@ -20,37 +21,36 @@ import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private UserDao userDao;
+    private UserRepository userRepository;
 
-    private final AtomicLong counter = new AtomicLong();
     private final SecureRandom random = new SecureRandom();
 
     @Autowired
-    public void setUserDao(UserDao userDao) {
-        this.userDao = userDao;
+    public void setUserDao(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public List<User> getAllUsers(){
         log.info("Getting all users");
-        return userDao.getAllUsers();
+        return userRepository.findAll();
     }
 
     @Override
+    @Transactional
     public User createUser(UserDto user) {
 
         nullChecker(user, "user");
         stringChecker(user.getFirstName(), "userDto");
         stringChecker(user.getLastName(), "userDto");
         User user1 = new User();
-        user1.setId(counter.incrementAndGet());
         user1.setFirstName(user.getFirstName());
         user1.setLastName(user.getLastName());
         user1.setUsername(generateUsername(user.getFirstName(), user.getLastName()));
         user1.setPassword(generateThePassword());
         user1.setIsActive(true);
         log.info("Created user {}", user1);
-        return userDao.createUser(user1);
+        return userRepository.save(user1);
     }
 
     private String generateThePassword(){
@@ -73,13 +73,13 @@ public class UserServiceImpl implements UserService {
         username.append(firstName);
         username.append(".");
         username.append(lastName);
-        if(userDao.getUserByUsername(username.toString())!=null) {
+        if(userRepository.findUserByUsername(username.toString()).isPresent()){
             int sequence = 1;
             String uniqueUsername;
 
             while(true){
                 uniqueUsername = username.toString()+sequence;
-                if(userDao.getUserByUsername(uniqueUsername)!=null) {
+                if(userRepository.findUserByUsername(uniqueUsername).isPresent()) {
                     sequence++;
                 }else{
                     break;
@@ -92,45 +92,51 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @PostConstruct
-    public void init(){
-        long maxUserId= 0L;
-        List<User> userList = userDao.getAllUsers();
-        for(User user: userList) {
-            if(user.getId()==null || user.getId() <=0) {
-                continue;
-            }
-            if(user.getId()>maxUserId){
-                maxUserId= user.getId();
-            }
-        }
-        counter.set(maxUserId);
 
-    }
 
+    @Transactional
     @Override
-    public User updateUsersName(String username, UserDto userDto){
+    public User updateUser(Long id, UserDto userDto){
         nullChecker(userDto, "userDto");
-        User user = userDao.getUserByUsername(username);
+        User user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
         nullChecker(user, "user");
         user.setFirstName(userDto.getFirstName() != null ? userDto.getFirstName() : user.getFirstName());
         user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : user.getLastName());
         user.setIsActive(true);
         log.info("Updated user {}", user.getFirstName());
-        userDao.updateUser(user);
+        userRepository.update(user);
         return user;
     }
 
     @Override
-    public void deleteUser(String username) {
-        log.info("Deleting user {}", username);
-        userDao.deleteUser(username);
+    public void deleteUser(Long id) {
+        log.info("Deleting user {}", id);
+        userRepository.deleteById(id);
     }
 
     @Override
     public User findUserByUsername(String username){
         log.info("Finding user {}", username);
-        return userDao.getUserByUsername(username);
+        return userRepository.findUserByUsername(username).orElseThrow(()->new NoSuchElementException("User not found"+username));
+    }
+
+    @Override
+    public boolean userAuthenticated(String username, String password) {
+        try{
+            User user = findUserByUsername(username);
+            return user.getPassword().equals(password);
+        }catch (NoSuchElementException e){
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(User user, String newPassword) {
+        nullChecker(newPassword, "newPassword");
+        stringChecker(user.getPassword(), "newPassword");
+        user.setPassword(newPassword);
+        userRepository.update(user);
     }
 
 }

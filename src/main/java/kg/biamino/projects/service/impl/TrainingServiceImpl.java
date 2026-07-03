@@ -1,8 +1,10 @@
 package kg.biamino.projects.service.impl;
 
-import kg.biamino.projects.dao.TrainingDao;
 import kg.biamino.projects.dto.TrainingDto;
+import kg.biamino.projects.model.Trainee;
+import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
+import kg.biamino.projects.repository.TrainingRepository;
 import kg.biamino.projects.service.TrainingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static kg.biamino.projects.utils.ValidationInput.integerChecker;
 import static kg.biamino.projects.utils.ValidationInput.nullChecker;
@@ -17,23 +20,23 @@ import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 @Service
 @Slf4j
 public class TrainingServiceImpl implements TrainingService {
-    private TrainingDao trainingDao;
+    private TrainingRepository trainingRepository;
 
     @Autowired
-    public void setTrainingDao(TrainingDao trainingDao) {
-        this.trainingDao = trainingDao;
+    public void setTrainingRepository(TrainingRepository trainingRepository) {
+        this.trainingRepository = trainingRepository;
     }
 
     @Override
-    public Training getTrainingByName(String name) {
-        log.info("Getting training by name {}", name);
-        return trainingDao.getTraining(name);
+    public Training getTrainingById(Long id) {
+        log.info("Getting training by id {}", id);
+        return trainingRepository.findById(id).orElseThrow(()-> new NoSuchElementException("Training with id " + id + " not found"));
     }
 
     @Override
     public List<Training> getAllTrainings() {
         log.info("Getting all trainings");
-        return trainingDao.getAllTrainings();
+        return trainingRepository.findAll();
     }
 
     @Override
@@ -42,16 +45,16 @@ public class TrainingServiceImpl implements TrainingService {
         log.info("Creating training {}", trainingDto);
 
         Training training = builder(trainingDto);
-        return trainingDao.createTraining(training.getTrainingName(),training);
+        return trainingRepository.save(training);
     }
 
     private Training builder(TrainingDto trainingDto) {
         Training training = new Training();
         training.setTrainingName(trainingDto.getTrainingName());
         training.setTrainingType(trainingDto.getTrainingType());
-        training.setTrainingStart(trainingDto.getTrainingStart());
-        training.setTrainerId(trainingDto.getTrainerId());
-        training.setTraineeId(trainingDto.getTraineeId());
+        training.setDate(trainingDto.getTrainingStart());
+        training.setTrainer(new Trainer());
+        training.setTrainee(new Trainee());
         training.setDuration(trainingDto.getDuration());
         return training;
     }
