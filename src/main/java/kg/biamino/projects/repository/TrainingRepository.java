@@ -14,7 +14,7 @@ public interface TrainingRepository {
 
     List<Training> findAll();
 
-    List<Training> findByCriteria(Long trainingId, TraineeCriteriaDto traineeCriteriaDto);
+    List<Training> findByCriteria(String  username, TraineeCriteriaDto traineeCriteriaDto);
 
-    List<Training> findByCriteria(Long id, TrainerCriteriaDto traineeCriteriaDto);
+    List<Training> findByCriteria(String username, TrainerCriteriaDto traineeCriteriaDto);
 }

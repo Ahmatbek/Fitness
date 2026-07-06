@@ -103,13 +103,13 @@ public class UserServiceImpl implements UserService {
         nullChecker(user, "user");
         user.setFirstName(userDto.getFirstName() != null ? userDto.getFirstName() : user.getFirstName());
         user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : user.getLastName());
-        user.setIsActive(true);
         log.info("Updated user {}", user.getFirstName());
         userRepository.update(user);
         return user;
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         log.info("Deleting user {}", id);
         userRepository.deleteById(id);
@@ -137,8 +137,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void changePassword(User user, String newPassword) {
-        nullChecker(newPassword, "newPassword");
-        stringChecker(user.getPassword(), "newPassword");
+        stringChecker(newPassword, "newPassword");
         user.setPassword(newPassword);
         userRepository.update(user);
     }
@@ -147,6 +146,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changeStatus(User user, Boolean status){
         nullChecker(status, "status");
+        if(status.equals(user.getIsActive())){
+            throw new IllegalStateException("User is already " + (status ? "active" : "inactive"));
+        }
         user.setIsActive(status);
         userRepository.update(user);
 

@@ -144,4 +144,14 @@ public class FitnessFacadeImpl implements FitnessFacade {
     public List<Training> getTrainingsByTrainerUsernameAndCriteria(AuthUserDto authUserDto, TrainerCriteriaDto traineeCriteriaDto) {
         return trainerService.getTrainingsByCriteria(authUserDto, traineeCriteriaDto);
     }
+
+    @Override
+    public List<Trainer> getTrainersNotAssignedToTrainee(AuthUserDto authUserDto) {
+        return traineeService.getTrainersNotAssignedToTrainee(authUserDto);
+    }
+
+    @Override
+    public List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos) {
+        return trainerService.updateTraineeTrainersList(authUserDto, trainerDtos);
+    }
 }

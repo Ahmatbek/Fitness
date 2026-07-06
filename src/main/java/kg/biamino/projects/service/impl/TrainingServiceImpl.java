@@ -4,7 +4,6 @@ import kg.biamino.projects.dto.AuthUserDto;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.mapper.impl.TrainingMapper;
 import kg.biamino.projects.model.Training;
-import kg.biamino.projects.records.TraineeCriteriaDto;
 import kg.biamino.projects.repository.TrainingRepository;
 import kg.biamino.projects.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -60,10 +59,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
 
-    @Override
-    public List<Training> findTrainingsByCriteria(Long traineeId, TraineeCriteriaDto traineeCriteriaDto) {
-       return   trainingRepository.findByCriteria(traineeId, traineeCriteriaDto);
-    }
+
 
     private void validationInput(TrainingDto trainingDto) {
         nullChecker(trainingDto, "trainingDto");

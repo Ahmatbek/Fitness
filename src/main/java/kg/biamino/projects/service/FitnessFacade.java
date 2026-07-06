@@ -54,4 +54,8 @@ public interface FitnessFacade {
     List<Training> getTrainingsByTraineeUsernameAndCriteria(AuthUserDto authUserDto, TraineeCriteriaDto traineeCriteriaDto);
 
     List<Training> getTrainingsByTrainerUsernameAndCriteria(AuthUserDto authUserDto, TrainerCriteriaDto traineeCriteriaDto);
+
+    List<Trainer> getTrainersNotAssignedToTrainee(AuthUserDto authUserDto);
+
+    List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos);
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static kg.biamino.projects.utils.ValidationInput.nullChecker;
+import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 
 @Service
 @Slf4j
@@ -112,6 +113,7 @@ public class TrainerServiceImpl implements TrainerService {
     public Trainer passwordChange(ProfilePasswordChange profilePasswordChange) {
         userService.userAuthenticated(profilePasswordChange.username(), profilePasswordChange.oldPassword());
         User user = userService.findUserByUsername(profilePasswordChange.username());
+        stringChecker(profilePasswordChange.newPassword(), "new password");
         userService.changePassword(user, profilePasswordChange.newPassword());
         return trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("Trainer not found with userId" + user.getId()));
 
@@ -134,8 +136,7 @@ public class TrainerServiceImpl implements TrainerService {
     public List<Training> getTrainingsByCriteria(AuthUserDto authUserDto, TrainerCriteriaDto trainerCriteriaDto) {
         userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
         User user  = userService.findUserByUsername(authUserDto.getUsername());
-        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("Trainer not found with userId" + user.getId()));
-       return trainingRepository.findByCriteria(user.getId(), trainerCriteriaDto);
+       return trainingRepository.findByCriteria(user.getUsername(), trainerCriteriaDto);
 
     }
 
@@ -149,17 +150,14 @@ public class TrainerServiceImpl implements TrainerService {
         nullChecker(trainee, "trainee");
 
         List<Long> newTrainerIds = trainerDtos.stream()
-                .map(TrainerDto::getId) 
+                .map(TrainerDto::getId)
                 .toList();
 
         List<Trainer> newTrainers = new ArrayList<>();
         for(Long trainerId : newTrainerIds) {
-            newTrainers.add(trainerRepository.findById(trainerId).orElse(null));
-
-        }
-
-        if (newTrainers.size() != newTrainerIds.size()) {
-            throw new NoSuchElementException("one or more trainers not found");
+            Trainer trainer = trainerRepository.findById(trainerId)
+                    .orElseThrow(() -> new NoSuchElementException("Trainer not found with id " + trainerId));
+            newTrainers.add(trainer);
         }
 
         List<Trainer> currentTrainers = trainee.getTrainers();
@@ -182,14 +180,7 @@ public class TrainerServiceImpl implements TrainerService {
             trainerRepository.save(trainer);
         }
 
-
-        List<Trainer> result = new ArrayList<>();
-        for(Long trainerId : newTrainerIds) {
-            result.add(trainerRepository.findById(trainerId).orElse(null));
-        }
-        return result;
-
-
+        return newTrainers;
     }
 
 }

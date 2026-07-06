@@ -3,7 +3,6 @@ package kg.biamino.projects.service.impl;
 import kg.biamino.projects.dto.AuthUserDto;
 import kg.biamino.projects.dto.TraineeDto;
 import kg.biamino.projects.dto.TraineeStatusChangeDto;
-import kg.biamino.projects.dto.TrainerDto;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
@@ -40,7 +39,6 @@ public class TraineeServiceImpl implements TraineeService {
     @Autowired
     public TraineeServiceImpl(UserService userService){
         this.userService = userService;
-
     }
 
     @Autowired
@@ -49,12 +47,12 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Autowired
-    public void setTraineeRepository(TrainingRepository trainingRepository) {
+    public void setTrainingRepository(TrainingRepository trainingRepository) {
         this.trainingRepository = trainingRepository;
     }
 
     @Autowired
-    public void setTraineeDao(TraineeRepository traineeRepository) {
+    public void setTraineeRepository(TraineeRepository traineeRepository) {
         this.traineeRepository = traineeRepository;
     }
 
@@ -92,13 +90,14 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @Transactional
     public Trainee updateTrainee(AuthUserDto authUserDto, TraineeDto traineeDto) {
         userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
         dateValidation(traineeDto);
         log.info("Updating trainee: {}", traineeDto);
         User user = userService.updateUser(authUserDto.getUsername(), traineeDto);
 
-        Trainee trainee = traineeRepository.findById(user.getId()).orElse(null);
+        Trainee trainee = traineeRepository.findByUserId(user.getId()).orElse(null);
         nullChecker(trainee, "trainee");
         trainee.setDateOfBirth(traineeDto.getDateOfBirth());
         trainee.setAddress(traineeDto.getAddress() != null ? traineeDto.getAddress() : trainee.getAddress());
@@ -130,6 +129,7 @@ public class TraineeServiceImpl implements TraineeService {
     public Trainee passwordChange(ProfilePasswordChange profilePasswordChange) {
         userService.userAuthenticated(profilePasswordChange.username(), profilePasswordChange.oldPassword());
         User user = userService.findUserByUsername(profilePasswordChange.username());
+        stringChecker(profilePasswordChange.newPassword(), "new password");
         userService.changePassword(user, profilePasswordChange.newPassword());
         return traineeRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("user doesnt have trainee profile"));
     }
@@ -145,7 +145,8 @@ public class TraineeServiceImpl implements TraineeService {
 
 
     private void dateValidation(TraineeDto traineeDto) {
-        if (traineeDto == null || traineeDto.getDateOfBirth() == null || traineeDto.getDateOfBirth().isAfter(LocalDate.now())) {
+        nullChecker(traineeDto, "traineeDto");
+        if (traineeDto.getDateOfBirth() != null && traineeDto.getDateOfBirth().isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Invalid date of birth");
         }
     }
@@ -165,9 +166,7 @@ public class TraineeServiceImpl implements TraineeService {
     public List<Training> getTrainingsByCriteria(AuthUserDto authUserDto, TraineeCriteriaDto traineeCriteriaDto) {
         userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
         User user = userService.findUserByUsername(authUserDto.getUsername());
-        Trainee trainee = traineeRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("user doesnt have trainee profile"));
-        nullChecker(trainee, "trainee");
-        return trainingRepository.findByCriteria(trainee.getId(), traineeCriteriaDto);
+        return trainingRepository.findByCriteria(user.getUsername(), traineeCriteriaDto);
 
     }
 

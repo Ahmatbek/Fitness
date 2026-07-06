@@ -40,15 +40,15 @@ public class TrainingRepositoryImpl implements TrainingRepository {
 
 
     @Override
-    public List<Training> findByCriteria(Long id , TraineeCriteriaDto traineeCriteriaDto) {
+    public List<Training> findByCriteria(String username , TraineeCriteriaDto traineeCriteriaDto) {
         return entityManager.createQuery("""
         SELECT t from Training t 
-         where t.trainee.user.id = :id
+         where t.trainee.user.username = :username
          and t.trainer.user.firstName = :trainerFirstName
           and t.trainingType.name=:trainingTypeName
           and t.date between :startDate and :endDate
 """, Training.class)
-                .setParameter("id", id)
+                .setParameter("username", username)
                 .setParameter("startDate", traineeCriteriaDto.startDate())
                 .setParameter("endDate", traineeCriteriaDto.endDate())
                 .setParameter("trainingTypeName", traineeCriteriaDto.trainingTypeName())
@@ -58,15 +58,15 @@ public class TrainingRepositoryImpl implements TrainingRepository {
 
 
     @Override
-    public List<Training> findByCriteria(Long id, TrainerCriteriaDto traineeCriteriaDto) {
+    public List<Training> findByCriteria(String  username, TrainerCriteriaDto traineeCriteriaDto) {
 
         return entityManager.createQuery("""
         SELECT t from Training t 
-        where t.trainer.user.id = :id
+        where t.trainer.user.username = :username
         and t.trainee.user.firstName = :traineeFirstName
         and t.date between :startDate and :endDate
 """ ,Training.class)
-                .setParameter("id", id)
+                .setParameter("username", username)
                 .setParameter("startDate", traineeCriteriaDto.startDate())
                 .setParameter("endDate", traineeCriteriaDto.endDate())
                 .setParameter("traineeFirstName", traineeCriteriaDto.traineeName())
