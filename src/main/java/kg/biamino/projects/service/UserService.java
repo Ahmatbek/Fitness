@@ -13,13 +13,16 @@ public interface UserService {
     User createUser(UserDto user);
 
     @Transactional
-    User updateUser(Long id, UserDto userDto);
+    User updateUser(String username, UserDto userDto);
 
     void deleteUser(Long id);
 
     User findUserByUsername(String username);
 
-    boolean userAuthenticated(String username, String password);
+    void userAuthenticated(String username, String password);
 
     void changePassword(User user, String newPassword);
+
+    @Transactional
+    void changeStatus(User user, Boolean status);
 }

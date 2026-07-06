@@ -17,7 +17,7 @@ public class TrainingDto {
     Long traineeId;
     Long trainerId;
     String trainingName;
-    TrainingType trainingType;
+    String trainingType;
     LocalDate trainingStart;
     int duration;
 }

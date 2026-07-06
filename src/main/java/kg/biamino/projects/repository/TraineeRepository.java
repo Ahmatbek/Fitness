@@ -17,4 +17,6 @@ public interface TraineeRepository {
     void deleteById(Long id);
 
     Optional<Trainee> findByUsername(String user);
+
+    Optional<Trainee> findByUserId(Long id);
 }

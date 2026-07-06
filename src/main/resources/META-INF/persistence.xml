@@ -17,7 +17,7 @@
             <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/fitness"/>
             <property name="jakarta.persistence.jdbc.user" value="postgres"/>
             <property name="jakarta.persistence.jdbc.password" value="password"/>
-            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+<!--            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>-->
             <property name="jakarta.persistence.sql-load-script-source" value="data.sql"/>
         </properties>
     </persistence-unit>

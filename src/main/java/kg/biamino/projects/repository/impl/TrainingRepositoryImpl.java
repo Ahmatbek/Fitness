@@ -3,6 +3,8 @@ package kg.biamino.projects.repository.impl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import kg.biamino.projects.model.Training;
+import kg.biamino.projects.records.TraineeCriteriaDto;
+import kg.biamino.projects.records.TrainerCriteriaDto;
 import kg.biamino.projects.repository.TrainingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -34,5 +36,40 @@ public class TrainingRepositoryImpl implements TrainingRepository {
     @Override
     public List<Training> findAll() {
         return entityManager.createQuery("from Training", Training.class).getResultList();
+    }
+
+
+    @Override
+    public List<Training> findByCriteria(Long id , TraineeCriteriaDto traineeCriteriaDto) {
+        return entityManager.createQuery("""
+        SELECT t from Training t 
+         where t.trainee.user.id = :id
+         and t.trainer.user.firstName = :trainerFirstName
+          and t.trainingType.name=:trainingTypeName
+          and t.date between :startDate and :endDate
+""", Training.class)
+                .setParameter("id", id)
+                .setParameter("startDate", traineeCriteriaDto.startDate())
+                .setParameter("endDate", traineeCriteriaDto.endDate())
+                .setParameter("trainingTypeName", traineeCriteriaDto.trainingTypeName())
+                .setParameter("trainerFirstName", traineeCriteriaDto.trainerFirstName())
+                .getResultList();
+    }
+
+
+    @Override
+    public List<Training> findByCriteria(Long id, TrainerCriteriaDto traineeCriteriaDto) {
+
+        return entityManager.createQuery("""
+        SELECT t from Training t 
+        where t.trainer.user.id = :id
+        and t.trainee.user.firstName = :traineeFirstName
+        and t.date between :startDate and :endDate
+""" ,Training.class)
+                .setParameter("id", id)
+                .setParameter("startDate", traineeCriteriaDto.startDate())
+                .setParameter("endDate", traineeCriteriaDto.endDate())
+                .setParameter("traineeFirstName", traineeCriteriaDto.traineeName())
+                .getResultList();
     }
 }

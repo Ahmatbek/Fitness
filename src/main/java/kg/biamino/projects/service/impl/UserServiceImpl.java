@@ -2,7 +2,6 @@ package kg.biamino.projects.service.impl;
 
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.User;
-import kg.biamino.projects.records.ProfilePasswordChange;
 import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.AuthenticationException;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -96,9 +96,10 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User updateUser(Long id, UserDto userDto){
+    public User updateUser(String username, UserDto userDto){
         nullChecker(userDto, "userDto");
-        User user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        stringChecker(username, "userDto");
+        User user = userRepository.findUserByUsername(username).orElseThrow(NoSuchElementException::new);
         nullChecker(user, "user");
         user.setFirstName(userDto.getFirstName() != null ? userDto.getFirstName() : user.getFirstName());
         user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : user.getLastName());
@@ -115,18 +116,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User findUserByUsername(String username){
         log.info("Finding user {}", username);
         return userRepository.findUserByUsername(username).orElseThrow(()->new NoSuchElementException("User not found"+username));
     }
 
     @Override
-    public boolean userAuthenticated(String username, String password) {
+    public void userAuthenticated(String username, String password){
         try{
             User user = findUserByUsername(username);
-            return user.getPassword().equals(password);
-        }catch (NoSuchElementException e){
-            return false;
+            if(!user.getPassword().equals(password)){
+                throw new AuthenticationException("Passwords do not match");
+            }
+        }catch (NoSuchElementException | AuthenticationException e){
+            throw new RuntimeException(e);
         }
     }
 
@@ -137,6 +141,15 @@ public class UserServiceImpl implements UserService {
         stringChecker(user.getPassword(), "newPassword");
         user.setPassword(newPassword);
         userRepository.update(user);
+    }
+
+    @Transactional
+    @Override
+    public void changeStatus(User user, Boolean status){
+        nullChecker(status, "status");
+        user.setIsActive(status);
+        userRepository.update(user);
+
     }
 
 }

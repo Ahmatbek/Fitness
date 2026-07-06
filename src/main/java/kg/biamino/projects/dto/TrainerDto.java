@@ -13,11 +13,23 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @ToString
 public class TrainerDto extends UserDto {
-    TrainingType specialization;
+    Long id;
+    String specialization;
 
-    public TrainerDto(String firstName,String lastName,TrainingType specialization) {
+    public TrainerDto( String firstName,String lastName,String specialization) {
         super(firstName,lastName);
         this.specialization = specialization;
     }
+
+    public TrainerDto(Long id, String firstName,String lastName,String specialization) {
+        super(firstName,lastName);
+        this.specialization = specialization;
+        this.id = id;
+    }
+
+
+
+
+
 
 }

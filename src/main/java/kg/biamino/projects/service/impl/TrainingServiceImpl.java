@@ -1,14 +1,16 @@
 package kg.biamino.projects.service.impl;
 
+import kg.biamino.projects.dto.AuthUserDto;
 import kg.biamino.projects.dto.TrainingDto;
-import kg.biamino.projects.model.Trainee;
-import kg.biamino.projects.model.Trainer;
+import kg.biamino.projects.mapper.impl.TrainingMapper;
 import kg.biamino.projects.model.Training;
+import kg.biamino.projects.records.TraineeCriteriaDto;
 import kg.biamino.projects.repository.TrainingRepository;
-import kg.biamino.projects.service.TrainingService;
+import kg.biamino.projects.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,6 +23,14 @@ import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 @Slf4j
 public class TrainingServiceImpl implements TrainingService {
     private TrainingRepository trainingRepository;
+    private final UserService userService;
+    private final TrainingMapper trainingMapper;
+
+    @Autowired
+    public TrainingServiceImpl(UserService userService, TrainingMapper trainingMapper) {
+        this.userService = userService;
+        this.trainingMapper = trainingMapper;
+    }
 
     @Autowired
     public void setTrainingRepository(TrainingRepository trainingRepository) {
@@ -40,23 +50,19 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public Training createTraining(TrainingDto trainingDto){
+    @Transactional
+    public Training createTraining(AuthUserDto authUserDto, TrainingDto trainingDto){
+        userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
         validationInput(trainingDto);
         log.info("Creating training {}", trainingDto);
-
-        Training training = builder(trainingDto);
+        Training training = trainingMapper.toEntity(trainingDto);
         return trainingRepository.save(training);
     }
 
-    private Training builder(TrainingDto trainingDto) {
-        Training training = new Training();
-        training.setTrainingName(trainingDto.getTrainingName());
-        training.setTrainingType(trainingDto.getTrainingType());
-        training.setDate(trainingDto.getTrainingStart());
-        training.setTrainer(new Trainer());
-        training.setTrainee(new Trainee());
-        training.setDuration(trainingDto.getDuration());
-        return training;
+
+    @Override
+    public List<Training> findTrainingsByCriteria(Long traineeId, TraineeCriteriaDto traineeCriteriaDto) {
+       return   trainingRepository.findByCriteria(traineeId, traineeCriteriaDto);
     }
 
     private void validationInput(TrainingDto trainingDto) {

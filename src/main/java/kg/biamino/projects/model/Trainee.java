@@ -29,9 +29,11 @@ public class Trainee {
      User user;
 
      @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL, orphanRemoval = true)
+     @ToString.Exclude
      List<Training> trainings;
 
      @ManyToMany(mappedBy = "trainees")
+     @ToString.Exclude
      List<Trainer> trainers;
 
 }

@@ -22,9 +22,11 @@ public class Training {
      Long id;
      @ManyToOne
      @JoinColumn(name = "trainee_id", nullable = false)
+     @ToString.Exclude
      Trainee trainee;
      @ManyToOne
      @JoinColumn(name = "trainer_id", nullable = false)
+     @ToString.Exclude
      Trainer trainer;
      @Column(nullable = false)
      @NotNull

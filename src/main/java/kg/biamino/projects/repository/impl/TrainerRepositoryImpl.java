@@ -47,8 +47,26 @@ public class TrainerRepositoryImpl implements TrainerRepository {
         return entityManager.merge(trainer);
     }
 
+    @Override
+    public List<Trainer> findNotAssignedTrainees(Long traineeId){
+        return entityManager.createQuery("""
+        SELECT tr FROM Trainer tr
+        where not exists (
+            select 1 from Trainee t
+            join Trainer trainer
+            where t.id = :traineeId and
+            trainer=tr
+            
+        )
+""", Trainer.class)
+                .setParameter("traineeId", traineeId)
+                .getResultList();
+
+    }
+
+    }
 
 
 
 
-}
+

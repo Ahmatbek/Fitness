@@ -42,8 +42,18 @@ public class TraineeRepositoryImpl implements TraineeRepository {
 
     @Override
     public Optional<Trainee> findByUsername(String user) {
-        return Optional.ofNullable(entityManager.find(Trainee.class, user));
+        return Optional.ofNullable(entityManager.createQuery("select t from Trainee t where t.user.username=:user", Trainee.class)
+                        .setParameter("user", user)
+                .getSingleResult());
     }
+
+    @Override
+    public Optional<Trainee> findByUserId(Long id){
+        return Optional.ofNullable(entityManager.createQuery("from Trainee t where t.user.id=:userId", Trainee.class).
+                setParameter("userId", id)
+                .getSingleResult());
+    }
+
 
 
 

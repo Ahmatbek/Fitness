@@ -32,6 +32,7 @@ public class Trainer {
      User user;
 
      @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
+     @ToString.Exclude
      List<Training> trainings;
 
      @ManyToMany
@@ -40,6 +41,7 @@ public class Trainer {
              joinColumns = @JoinColumn(name = "trainer_id"),
              inverseJoinColumns = @JoinColumn(name = "trainee_id")
      )
+     @ToString.Exclude
      List<Trainee> trainees;
 
 
