@@ -5,7 +5,6 @@ import kg.biamino.projects.mapper.Mapper;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.service.TraineeService;
 import kg.biamino.projects.service.TrainerService;
-import kg.biamino.projects.service.TrainingService;
 import kg.biamino.projects.service.TrainingTypeService;
 import org.springframework.stereotype.Component;
 
