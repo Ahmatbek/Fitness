@@ -1,9 +1,6 @@
 package kg.biamino.projects.service.impl;
 
-import kg.biamino.projects.dto.AuthUserDto;
-import kg.biamino.projects.dto.ProfileStatusChangeDto;
-import kg.biamino.projects.dto.TrainerDto;
-import kg.biamino.projects.dto.UserCredentialsDto;
+import kg.biamino.projects.dto.*;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
@@ -105,12 +102,19 @@ public class TrainerServiceImpl implements TrainerService {
         return trainerRepository.update(trainer);
     }
 
-    @Override
     @Transactional(readOnly = true)
-    public Trainer findByUsername(AuthUserDto authUserDto) {
-        userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
-        User user = userService.findUserByUsername(authUserDto.getUsername());
-        return trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("Trainer not found with userId" + user.getId()));
+    @Override
+    public TrainerTraineesListDto findByUsername(String username) {
+        User user = userService.findUserByUsername(username);
+        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("Trainer not found with userId" + user.getId()));
+
+        return TrainerTraineesListDto.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .specialization(trainer.getSpecialization().getName())
+                .isActive(user.getIsActive())
+                .trainees(trainer.getTrainees().stream().map(this::toTraineeUsernameDto).toList())
+                .build();
     }
 
     @Override
@@ -186,6 +190,14 @@ public class TrainerServiceImpl implements TrainerService {
         }
 
         return newTrainers;
+    }
+
+    private TraineeUsernameDto toTraineeUsernameDto(Trainee trainee) {
+        return TraineeUsernameDto.builder()
+                .firstName(trainee.getUser().getFirstName())
+                .lastName(trainee.getUser().getLastName())
+                .username(trainee.getUser().getUsername())
+                .build();
     }
 
 }

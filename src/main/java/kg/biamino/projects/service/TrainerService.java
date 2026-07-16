@@ -1,9 +1,6 @@
 package kg.biamino.projects.service;
 
-import kg.biamino.projects.dto.AuthUserDto;
-import kg.biamino.projects.dto.ProfileStatusChangeDto;
-import kg.biamino.projects.dto.TrainerDto;
-import kg.biamino.projects.dto.UserCredentialsDto;
+import kg.biamino.projects.dto.*;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.records.ProfilePasswordChange;
@@ -21,7 +18,8 @@ public interface TrainerService {
 
     Trainer updateTrainer(AuthUserDto authUserDto, TrainerDto trainer);
 
-    Trainer findByUsername(AuthUserDto authUserDto);
+    @Transactional(readOnly = true)
+    TrainerTraineesListDto findByUsername(String username);
 
     Trainer passwordChange(ProfilePasswordChange profilePasswordChange);
 

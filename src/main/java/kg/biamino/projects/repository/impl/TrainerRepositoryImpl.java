@@ -27,7 +27,7 @@ public class TrainerRepositoryImpl implements TrainerRepository {
     @Override
     public Optional<Trainer> findByUserId(Long id) {
         return Optional.ofNullable(
-                entityManager.createQuery("from Trainer t where t.user.id=:userId", Trainer.class)
+                entityManager.createQuery("from Trainer t join fetch t.trainees where t.user.id=:userId", Trainer.class)
                         .setParameter("userId", id)
                         .getSingleResult());
     }
