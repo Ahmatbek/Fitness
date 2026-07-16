@@ -1,5 +1,6 @@
 package kg.biamino.projects.service;
 
+import kg.biamino.projects.dto.ChangePasswordDto;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.records.ProfilePasswordChange;
@@ -22,6 +23,8 @@ public interface UserService {
     void userAuthenticated(String username, String password);
 
     void changePassword(User user, String newPassword);
+
+    void changePassword(ChangePasswordDto changePasswordDto, String authUsername);
 
     @Transactional
     void changeStatus(User user, Boolean status);

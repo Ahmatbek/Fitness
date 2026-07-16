@@ -1,8 +1,9 @@
 package kg.biamino.projects.service.impl;
 
 import kg.biamino.projects.dto.AuthUserDto;
-import kg.biamino.projects.dto.TraineeStatusChangeDto;
+import kg.biamino.projects.dto.ProfileStatusChangeDto;
 import kg.biamino.projects.dto.TrainerDto;
+import kg.biamino.projects.dto.UserCredentialsDto;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
@@ -74,18 +75,22 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional
-    public Trainer createTrainer(TrainerDto trainerDto) {
+    public UserCredentialsDto createTrainer(TrainerDto trainerDto) {
         nullChecker(trainerDto, "trainerDto");
         User user = userService.createUser(trainerDto);
-
-        nullChecker(trainerDto.getSpecialization(), "specialization");
 
         Trainer trainer = new Trainer();
         trainer.setSpecialization(trainingTypeService.findByName(trainerDto.getSpecialization()));
         trainer.setUser(user);
 
+        trainerRepository.save(trainer);
         log.info("Creating trainer with id {}", user.getId());
-        return trainerRepository.save(trainer);
+
+
+        return UserCredentialsDto.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .build();
     }
 
     @Override
@@ -121,11 +126,11 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional
-    public void changeStatusTrainer(TraineeStatusChangeDto traineeStatusChangeDto) {
-        AuthUserDto authUserDto = traineeStatusChangeDto.authUser();
+    public void changeStatusTrainer(ProfileStatusChangeDto profileStatusChangeDto) {
+        AuthUserDto authUserDto = profileStatusChangeDto.authUser();
         userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
         User user = userService.findUserByUsername(authUserDto.getUsername());
-        userService.changeStatus(user, traineeStatusChangeDto.status());
+        userService.changeStatus(user, profileStatusChangeDto.status());
         trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("Trainer not found with userId" + user.getId()));
 
     }
@@ -142,7 +147,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Transactional
     @Override
-    public List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos) {
+    public List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos, Long id) {
         userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
         User user = userService.findUserByUsername(authUserDto.getUsername());
         Trainee trainee = traineeRepository.findByUserId(user.getId())

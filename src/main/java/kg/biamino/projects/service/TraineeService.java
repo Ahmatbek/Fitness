@@ -1,8 +1,6 @@
 package kg.biamino.projects.service;
 
-import kg.biamino.projects.dto.AuthUserDto;
-import kg.biamino.projects.dto.TraineeDto;
-import kg.biamino.projects.dto.TraineeStatusChangeDto;
+import kg.biamino.projects.dto.*;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
@@ -15,19 +13,19 @@ import java.util.List;
 public interface TraineeService {
     Trainee getTraineeById(Long id);
 
-    List<Trainee> getAllTrainees();
+//    List<TraineeDto> getAllTrainees();
 
-    Trainee createTrainee(TraineeDto trainee);
+    UserCredentialsDto createTrainee(TraineeDto trainee);
 
-    Trainee updateTrainee(AuthUserDto authUserDto, TraineeDto trainee);
+    TraineeTrainersListDto updateTrainee(UpdateTraineeDto trainee, String username);
 
     void deleteTraineeById(Long id);
 
-    Trainee findByUsername(AuthUserDto authUserDto);
+    TraineeTrainersListDto findByUsername(String authUserDto);
 
     Trainee passwordChange(ProfilePasswordChange profilePasswordChange);
 
-    void changeStatusTrainee(TraineeStatusChangeDto traineeStatusChangeDto);
+    void changeStatusTrainee(ProfileStatusChangeDto profileStatusChangeDto);
 
     @Transactional
     void removeTraineeByUsername(AuthUserDto authUserDto);
@@ -35,4 +33,6 @@ public interface TraineeService {
     List<Training> getTrainingsByCriteria(AuthUserDto authUserDto, TraineeCriteriaDto traineeCriteriaDto);
 
     List<Trainer> getTrainersNotAssignedToTrainee(AuthUserDto authUserDto);
+
+    void deleteTraineeByUsername(String username, String authUsername);
 }

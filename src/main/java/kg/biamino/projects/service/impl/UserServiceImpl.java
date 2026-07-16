@@ -1,6 +1,10 @@
 package kg.biamino.projects.service.impl;
 
+import kg.biamino.projects.dto.ChangePasswordDto;
 import kg.biamino.projects.dto.UserDto;
+import kg.biamino.projects.exception.AuthenticationException;
+import kg.biamino.projects.exception.AuthorizationException;
+import kg.biamino.projects.exception.UserNotFoundException;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.UserService;
@@ -9,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.AuthenticationException;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -31,7 +34,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers(){
+    public List<User> getAllUsers() {
         log.info("Getting all users");
         return userRepository.findAll();
     }
@@ -53,12 +56,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user1);
     }
 
-    private String generateThePassword(){
+    private String generateThePassword() {
         String pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~`!@#$%^&*()-_=+[{]}\\|;:\'\",<.>/?";
         char[] password = new char[10];
-        for(int i=0; i< password.length; i++){
+        for (int i = 0; i < password.length; i++) {
             int index = random.nextInt(pool.length());
-            password[i]=(pool.charAt(index));
+            password[i] = (pool.charAt(index));
         }
         return String.valueOf(password);
 
@@ -66,22 +69,22 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateUsername(String firstName, String lastName) {
-        if(firstName == null || lastName == null || firstName.isBlank() || lastName.isBlank()) {
+        if (firstName == null || lastName == null || firstName.isBlank() || lastName.isBlank()) {
             throw new IllegalArgumentException("First and last name cannot be null");
         }
         StringBuilder username = new StringBuilder();
         username.append(firstName);
         username.append(".");
         username.append(lastName);
-        if(userRepository.findUserByUsername(username.toString()).isPresent()){
+        if (userRepository.findUserByUsername(username.toString()).isPresent()) {
             int sequence = 1;
             String uniqueUsername;
 
-            while(true){
-                uniqueUsername = username.toString()+sequence;
-                if(userRepository.findUserByUsername(uniqueUsername).isPresent()) {
+            while (true) {
+                uniqueUsername = username.toString() + sequence;
+                if (userRepository.findUserByUsername(uniqueUsername).isPresent()) {
                     sequence++;
-                }else{
+                } else {
                     break;
                 }
             }
@@ -93,10 +96,9 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     @Transactional
     @Override
-    public User updateUser(String username, UserDto userDto){
+    public User updateUser(String username, UserDto userDto) {
         nullChecker(userDto, "userDto");
         stringChecker(username, "userDto");
         User user = userRepository.findUserByUsername(username).orElseThrow(NoSuchElementException::new);
@@ -117,21 +119,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public User findUserByUsername(String username){
+    public User findUserByUsername(String username) {
         log.info("Finding user {}", username);
-        return userRepository.findUserByUsername(username).orElseThrow(()->new NoSuchElementException("User not found"+username));
+        return userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found" + username));
     }
 
     @Override
-    public void userAuthenticated(String username, String password){
-        try{
-            User user = findUserByUsername(username);
-            if(!user.getPassword().equals(password)){
-                throw new AuthenticationException("Passwords do not match");
-            }
-        }catch (NoSuchElementException | AuthenticationException e){
-            throw new RuntimeException(e);
-        }
+    @Transactional(readOnly = true)
+    public void userAuthenticated(String username, String password) {
+        User user = findUserByUsername(username);
+        if (!user.getPassword().equals(password)) throw new AuthenticationException("Passwords do not match or username doesnt exist");
+
     }
 
     @Override
@@ -142,11 +140,24 @@ public class UserServiceImpl implements UserService {
         userRepository.update(user);
     }
 
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordDto changePasswordDto, String authUsername) {
+        userAuthenticated(changePasswordDto.username(), changePasswordDto.oldPassword());
+        User user = findUserByUsername(changePasswordDto.username());
+        if(!user.getUsername().equals(authUsername)) {
+            throw new AuthorizationException("Authenticated User doesnt have permissions change other users");
+        }
+        user.setPassword(changePasswordDto.newPassword());
+        userRepository.update(user);
+
+    }
+
     @Transactional
     @Override
-    public void changeStatus(User user, Boolean status){
+    public void changeStatus(User user, Boolean status) {
         nullChecker(status, "status");
-        if(status.equals(user.getIsActive())){
+        if (status.equals(user.getIsActive())) {
             throw new IllegalStateException("User is already " + (status ? "active" : "inactive"));
         }
         user.setIsActive(status);

@@ -1,15 +1,15 @@
 package kg.biamino.projects.service;
 
 import kg.biamino.projects.dto.AuthUserDto;
-import kg.biamino.projects.dto.TraineeStatusChangeDto;
+import kg.biamino.projects.dto.ProfileStatusChangeDto;
 import kg.biamino.projects.dto.TrainerDto;
+import kg.biamino.projects.dto.UserCredentialsDto;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.records.ProfilePasswordChange;
 import kg.biamino.projects.records.TrainerCriteriaDto;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.AuthenticationException;
 import java.util.List;
 
 public interface TrainerService {
@@ -17,7 +17,7 @@ public interface TrainerService {
 
     List<Trainer> getAllTrainers();
 
-    Trainer createTrainer(TrainerDto trainer);
+    UserCredentialsDto createTrainer(TrainerDto trainer);
 
     Trainer updateTrainer(AuthUserDto authUserDto, TrainerDto trainer);
 
@@ -25,11 +25,11 @@ public interface TrainerService {
 
     Trainer passwordChange(ProfilePasswordChange profilePasswordChange);
 
-    void changeStatusTrainer(TraineeStatusChangeDto traineeStatusChangeDto);
+    void changeStatusTrainer(ProfileStatusChangeDto traineeStatusChangeDto);
 
     @Transactional(readOnly = true)
     List<Training> getTrainingsByCriteria(AuthUserDto authUserDto, TrainerCriteriaDto trainerCriteriaDto);
 
     @Transactional
-    List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos);
+    List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos, Long id);
 }

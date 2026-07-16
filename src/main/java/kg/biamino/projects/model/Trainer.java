@@ -38,10 +38,14 @@ public class Trainer {
      @ManyToMany
      @JoinTable(
              name = "trainee_traineer",
-             joinColumns = @JoinColumn(name = "trainer_id"),
-             inverseJoinColumns = @JoinColumn(name = "trainee_id")
+             joinColumns = @JoinColumn(name = "trainer_id",
+                                        foreignKey = @ForeignKey(name="trainer_foreign_key") ),
+             inverseJoinColumns = @JoinColumn(name = "trainee_id",
+                                             foreignKey = @ForeignKey(name = "trainee_foreign_key"))
+
      )
      @ToString.Exclude
+     @OnDelete(action = OnDeleteAction.CASCADE)
      List<Trainee> trainees;
 
 

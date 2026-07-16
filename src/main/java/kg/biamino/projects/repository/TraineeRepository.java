@@ -19,4 +19,6 @@ public interface TraineeRepository {
     Optional<Trainee> findByUsername(String user);
 
     Optional<Trainee> findByUserId(Long id);
+
+    Optional<Trainee> findByUserIdToGetTrainers(Long id);
 }

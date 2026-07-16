@@ -5,15 +5,18 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.util.List;
 
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@FieldDefaults(level= AccessLevel.PRIVATE)
-@NoArgsConstructor
-@SuperBuilder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @ToString(callSuper = true)
-public class TraineeDto extends UserDto{
+public class TraineeTrainersListDto extends UserDto {
     String address;
     LocalDate dateOfBirth;
-
+    boolean isActive;
+    List<TrainerUsernameDto> trainers;
 }

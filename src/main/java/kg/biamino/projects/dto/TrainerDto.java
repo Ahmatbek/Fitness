@@ -1,35 +1,21 @@
 package kg.biamino.projects.dto;
 
 
+import jakarta.validation.constraints.NotBlank;
 import kg.biamino.projects.model.TrainingType;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@ToString
+@NoArgsConstructor
+@SuperBuilder
+@ToString(callSuper = true)
+
 public class TrainerDto extends UserDto {
     Long id;
+    @NotBlank(message = "specialization can't be blank")
     String specialization;
-
-    public TrainerDto( String firstName,String lastName,String specialization) {
-        super(firstName,lastName);
-        this.specialization = specialization;
-    }
-
-    public TrainerDto(Long id, String firstName,String lastName,String specialization) {
-        super(firstName,lastName);
-        this.specialization = specialization;
-        this.id = id;
-    }
-
-
-
-
-
-
 }

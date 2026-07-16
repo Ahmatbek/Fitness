@@ -54,7 +54,20 @@ public class TraineeRepositoryImpl implements TraineeRepository {
                 .getSingleResult());
     }
 
+    @Override
+    public Optional<Trainee> findByUserIdToGetTrainers(Long id) {
+        return entityManager.createQuery("""
+                select distinct t
+                from Trainee t 
+                join fetch t.trainers 
+                where t.user.id=:userId
+                """, Trainee.class)
+                .setParameter("userId", id)
+                .getResultList()
+                .stream()
+                .findFirst();
 
+    }
 
 
 }

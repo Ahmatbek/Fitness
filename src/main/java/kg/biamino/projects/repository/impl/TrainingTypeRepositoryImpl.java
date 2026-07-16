@@ -2,10 +2,12 @@ package kg.biamino.projects.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.TrainingType;
 import kg.biamino.projects.repository.TrainingTypeRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -32,6 +34,11 @@ public class TrainingTypeRepositoryImpl implements TrainingTypeRepository {
         return Optional.ofNullable(em.createQuery("from TrainingType t where t.name=:name", TrainingType.class)
                 .setParameter("name", name)
                 .getSingleResult());
+    }
+
+    @Override
+    public List<TrainingType> findAll(){
+        return em.createQuery("from TrainingType", TrainingType.class).getResultList();
     }
 
 }
