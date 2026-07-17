@@ -58,5 +58,9 @@ public class GlobalExceptionHandler  {
     public ResponseEntity<ErrorResponseBody> noSuchElementException(NoSuchElementException e) {
         return new ResponseEntity<>(errorResponseService.makeResponse(e), HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(value={DateInvalidException.class})
+    public ResponseEntity<ErrorResponseBody> dateInvalidException(DateInvalidException e) {
+        return new ResponseEntity<>(errorResponseService.makeResponse(e), HttpStatus.NOT_FOUND);
+    }
 
 }
