@@ -1,23 +1,42 @@
 package kg.biamino.projects.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import kg.biamino.projects.auth.AuthHandler;
+import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.service.TrainingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("trainings")
+@Tag(name = "Training", description = "Training scheduling (create only, no update or delete)")
 public class TrainingController {
 
     private final TrainingService trainingService;
-    public TrainingController(final TrainingService trainingService) {
+    private final AuthHandler authHandler;
+    public TrainingController(TrainingService trainingService, AuthHandler authHandler) {
         this.trainingService = trainingService;
+        this.authHandler = authHandler;
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllTrainings() {
-        return ResponseEntity.ok(trainingService.getAllTrainings());
+
+    @PostMapping
+    @Operation(summary = "add a new training")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "training created"),
+            @ApiResponse(responseCode = "400", description = "required fields missing or invalid"),
+            @ApiResponse(responseCode = "401", description = "authentication failed"),
+            @ApiResponse(responseCode = "404", description = "trainee, trainer or training type doesnt exist")
+    })
+    public ResponseEntity<?> createTraining(@Valid @RequestBody TrainingDto trainingDto, HttpServletRequest request) {
+        authHandler.handle(request);
+        trainingService.createTraining(trainingDto);
+        return ResponseEntity.ok().build();
     }
 
 

@@ -26,10 +26,11 @@ public class TrainerRepositoryImpl implements TrainerRepository {
 
     @Override
     public Optional<Trainer> findByUserId(Long id) {
-        return Optional.ofNullable(
-                entityManager.createQuery("from Trainer t join fetch t.trainees where t.user.id=:userId", Trainer.class)
+        return entityManager.createQuery("from Trainer t left join fetch t.trainees where t.user.id=:userId", Trainer.class)
                         .setParameter("userId", id)
-                        .getSingleResult());
+                        .getResultList()
+                .stream()
+                .findFirst();
     }
 
     @Override
@@ -62,6 +63,20 @@ public class TrainerRepositoryImpl implements TrainerRepository {
                 .setParameter("traineeId", traineeId)
                 .getResultList();
 
+    }
+
+    @Override
+    public List<Trainer> findNotAssignedTrainersByTraineeId(Long id){
+        return entityManager.createNativeQuery("""
+            select tr.*
+            from trainee_traineer tt
+            join trainers tr on tr.id=tt.trainer_id
+            join users u on u.id=tr.user_id
+            join training_types trt on trt.id=tr.specialization_id
+            where tt.trainee_id!=:id
+            """, Trainer.class)
+                .setParameter("id", id)
+                .getResultList();
     }
 
     }

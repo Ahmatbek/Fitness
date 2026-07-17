@@ -11,22 +11,19 @@ import java.util.List;
 
 public interface TrainerService {
     Trainer getTrainerById(Long id);
-
-    List<Trainer> getAllTrainers();
+    Trainer getTrainerByUsername(String name);
 
     UserCredentialsDto createTrainer(TrainerDto trainer);
 
-    Trainer updateTrainer(AuthUserDto authUserDto, TrainerDto trainer);
+    TrainerTraineesListDto updateTrainer(UpdateTrainerDto trainer, String authUsername);
 
     @Transactional(readOnly = true)
     TrainerTraineesListDto findByUsername(String username);
 
-    Trainer passwordChange(ProfilePasswordChange profilePasswordChange);
-
-    void changeStatusTrainer(ProfileStatusChangeDto traineeStatusChangeDto);
+    void changeStatusTrainer(ChangeStatusDto changeStatusDto, String authUsername);
 
     @Transactional(readOnly = true)
-    List<Training> getTrainingsByCriteria(AuthUserDto authUserDto, TrainerCriteriaDto trainerCriteriaDto);
+    List<TrainingsDisplayInfoTrainer> getTrainingsByCriteria(TrainerTrainingsDto trainerCriteriaDto);
 
     @Transactional
     List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos, Long id);

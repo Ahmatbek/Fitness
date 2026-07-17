@@ -10,8 +10,6 @@ public interface TrainingTypeService {
     @Transactional(readOnly = true)
     TrainingType findById(Long id);
 
-//    @Transactional
-//    TrainingType save(TrainingType trainingType);
 
     @Transactional(readOnly = true)
     TrainingType findByName(String name);

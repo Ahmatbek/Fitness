@@ -9,8 +9,6 @@ import java.util.List;
 public interface TrainingService {
     Training getTrainingById(Long id);
 
-    List<Training> getAllTrainings();
-
-    Training createTraining(AuthUserDto authUserDto, TrainingDto training);
+    Training createTraining(TrainingDto training);
 
 }

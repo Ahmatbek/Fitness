@@ -11,28 +11,22 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface TraineeService {
-    Trainee getTraineeById(Long id);
 
-//    List<TraineeDto> getAllTrainees();
+    Trainee getTraineeByUsername(String name);
 
     UserCredentialsDto createTrainee(TraineeDto trainee);
 
     TraineeTrainersListDto updateTrainee(UpdateTraineeDto trainee, String username);
 
-    void deleteTraineeById(Long id);
-
     TraineeTrainersListDto findByUsername(String authUserDto);
 
-    Trainee passwordChange(ProfilePasswordChange profilePasswordChange);
+    void changeStatusTrainer(ChangeStatusDto changeStatusDto, String authUsername);
 
-    void changeStatusTrainee(ProfileStatusChangeDto profileStatusChangeDto);
-
-    @Transactional
-    void removeTraineeByUsername(AuthUserDto authUserDto);
-
-    List<Training> getTrainingsByCriteria(AuthUserDto authUserDto, TraineeCriteriaDto traineeCriteriaDto);
-
-    List<Trainer> getTrainersNotAssignedToTrainee(AuthUserDto authUserDto);
+    List<TrainingsDisplayInfoTrainee> getTrainingsByCriteria(TraineeTrainingsDto trainee);
 
     void deleteTraineeByUsername(String username, String authUsername);
+
+    List<TrainerUsernameDto> findNotAssignedTrainersByUsername(String username);
+
+    List<TrainerUsernameDto>  updateTrainersByUsername(UpdateTraineeTrainersDto updateTraineeTrainersDto, String username);
 }

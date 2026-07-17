@@ -3,6 +3,7 @@ package kg.biamino.projects.repository.impl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import kg.biamino.projects.model.Trainee;
+import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.repository.TraineeRepository;
 import org.springframework.stereotype.Repository;
 
@@ -42,16 +43,20 @@ public class TraineeRepositoryImpl implements TraineeRepository {
 
     @Override
     public Optional<Trainee> findByUsername(String user) {
-        return Optional.ofNullable(entityManager.createQuery("select t from Trainee t where t.user.username=:user", Trainee.class)
+        return entityManager.createQuery("select t from Trainee t where t.user.username=:user", Trainee.class)
                         .setParameter("user", user)
-                .getSingleResult());
+                .getResultList()
+                .stream()
+                .findFirst();
     }
 
     @Override
     public Optional<Trainee> findByUserId(Long id){
-        return Optional.ofNullable(entityManager.createQuery("from Trainee t where t.user.id=:userId", Trainee.class).
+        return entityManager.createQuery("from Trainee t where t.user.id=:userId", Trainee.class).
                 setParameter("userId", id)
-                .getSingleResult());
+                .getResultList()
+                .stream()
+                .findFirst();
     }
 
     @Override

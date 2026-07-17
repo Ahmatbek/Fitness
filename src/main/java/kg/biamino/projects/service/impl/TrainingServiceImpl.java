@@ -22,12 +22,10 @@ import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 @Slf4j
 public class TrainingServiceImpl implements TrainingService {
     private TrainingRepository trainingRepository;
-    private final UserService userService;
     private final TrainingMapper trainingMapper;
 
     @Autowired
-    public TrainingServiceImpl(UserService userService, TrainingMapper trainingMapper) {
-        this.userService = userService;
+    public TrainingServiceImpl( TrainingMapper trainingMapper) {
         this.trainingMapper = trainingMapper;
     }
 
@@ -37,21 +35,15 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Training getTrainingById(Long id) {
         log.info("Getting training by id {}", id);
         return trainingRepository.findById(id).orElseThrow(()-> new NoSuchElementException("Training with id " + id + " not found"));
     }
 
     @Override
-    public List<Training> getAllTrainings() {
-        log.info("Getting all trainings");
-        return trainingRepository.findAll();
-    }
-
-    @Override
     @Transactional
-    public Training createTraining(AuthUserDto authUserDto, TrainingDto trainingDto){
-        userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
+    public Training createTraining( TrainingDto trainingDto){
         validationInput(trainingDto);
         log.info("Creating training {}", trainingDto);
         Training training = trainingMapper.toEntity(trainingDto);
@@ -65,12 +57,10 @@ public class TrainingServiceImpl implements TrainingService {
         nullChecker(trainingDto, "trainingDto");
         nullChecker(trainingDto.getTrainingName(), "trainingDto.trainingName");
         nullChecker(trainingDto.getTrainingType(), "trainingDto.trainingType");
-        nullChecker(trainingDto.getTrainerId(), "trainingDto.trainerId");
-        nullChecker(trainingDto.getTraineeId(), "trainingDto.traineeId");
+        nullChecker(trainingDto.getTrainerUsername(), "trainingDto.trainerId");
+        nullChecker(trainingDto.getTraineeUsername(), "trainingDto.traineeId");
         nullChecker(trainingDto.getTrainingStart(), "trainingDto.trainingStart");
 
-        integerChecker(trainingDto.getTrainerId(), "trainerId is 0 or less");
-        integerChecker(trainingDto.getTraineeId(), "traineeId is 0 or less");
         integerChecker(trainingDto.getDuration(), "trainingDto.duration");
 
         if(trainingDto.getTrainingName().isBlank()) {

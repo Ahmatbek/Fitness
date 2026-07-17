@@ -98,13 +98,14 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User updateUser(String username, UserDto userDto) {
+    public User updateUser(String username, UserDto userDto, boolean status) {
         nullChecker(userDto, "userDto");
         stringChecker(username, "userDto");
         User user = userRepository.findUserByUsername(username).orElseThrow(NoSuchElementException::new);
         nullChecker(user, "user");
         user.setFirstName(userDto.getFirstName() != null ? userDto.getFirstName() : user.getFirstName());
         user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : user.getLastName());
+        user.setIsActive(status);
         log.info("Updated user {}", user.getFirstName());
         userRepository.update(user);
         return user;
@@ -157,9 +158,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changeStatus(User user, Boolean status) {
         nullChecker(status, "status");
-        if (status.equals(user.getIsActive())) {
-            throw new IllegalStateException("User is already " + (status ? "active" : "inactive"));
-        }
         user.setIsActive(status);
         userRepository.update(user);
 

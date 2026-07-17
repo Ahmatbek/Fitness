@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 public class TrainerTraineesListDto extends UserDto {
+    String username;
     String specialization;
     Boolean isActive;
     List<TraineeUsernameDto> trainees;

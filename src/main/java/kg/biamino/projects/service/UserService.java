@@ -14,7 +14,7 @@ public interface UserService {
     User createUser(UserDto user);
 
     @Transactional
-    User updateUser(String username, UserDto userDto);
+    User updateUser(String username, UserDto userDto, boolean status);
 
     void deleteUser(Long id);
 

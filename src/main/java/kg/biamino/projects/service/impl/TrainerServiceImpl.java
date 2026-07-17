@@ -1,12 +1,11 @@
 package kg.biamino.projects.service.impl;
 
+import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.User;
-import kg.biamino.projects.records.ProfilePasswordChange;
-import kg.biamino.projects.records.TrainerCriteriaDto;
 import kg.biamino.projects.repository.TraineeRepository;
 import kg.biamino.projects.repository.TrainerRepository;
 import kg.biamino.projects.repository.TrainingRepository;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static kg.biamino.projects.utils.ValidationInput.nullChecker;
-import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 
 @Service
 @Slf4j
@@ -64,10 +62,10 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Trainer> getAllTrainers() {
-        log.info("Getting all trainers");
-        return trainerRepository.findAll();
+    public Trainer getTrainerByUsername(String username) {
+        log.info("Getting trainer with username {}", username);
+        User user = userService.findUserByUsername(username);
+        return trainerRepository.findByUserId(user.getId()).orElseThrow(()-> new NoSuchElementException("Trainer with username " + username + " not found"));
     }
 
     @Override
@@ -92,14 +90,27 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional
-    public Trainer updateTrainer(AuthUserDto authUserDto, TrainerDto trainerDto){
-        log.info("Updating trainer with username {}", authUserDto.getUsername());
-        userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
-        User user1 = userService.updateUser(authUserDto.getUsername(), trainerDto);
-        Trainer trainer = trainerRepository.findByUserId(user1.getId()).orElse(null);
-        nullChecker(trainer, "Trainer");
-        trainer.setSpecialization(trainerDto.getSpecialization() != null ? trainingTypeService.findByName(trainerDto.getSpecialization()) : trainer.getSpecialization());
-        return trainerRepository.update(trainer);
+    public TrainerTraineesListDto updateTrainer(UpdateTrainerDto trainerDto, String authUsername){
+        log.info("Updating trainer with username {}", authUsername);
+        AuthHandler.checkAuthorization(trainerDto.getUsername(), authUsername);
+
+        User user1 = userService.updateUser(authUsername, trainerDto, trainerDto.getIsActive());
+        Trainer trainer = trainerRepository.findByUserId(user1.getId()).orElseThrow(()-> new NoSuchElementException("Trainer with id " + user1.getId() + " not found"));
+
+        trainerRepository.update(trainer);
+        log.info("Updating trainer with id {}", user1.getId());
+
+        return TrainerTraineesListDto.builder()
+                .isActive(user1.getIsActive())
+                .firstName(user1.getFirstName())
+                .lastName(user1.getLastName())
+                .username(user1.getUsername())
+                .specialization(trainer.getSpecialization().getName())
+                .trainees(trainer.getTrainees()
+                        .stream()
+                        .map(this::toTraineeUsernameDto)
+                        .toList())
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -117,35 +128,23 @@ public class TrainerServiceImpl implements TrainerService {
                 .build();
     }
 
-    @Override
-    @Transactional
-    public Trainer passwordChange(ProfilePasswordChange profilePasswordChange) {
-        userService.userAuthenticated(profilePasswordChange.username(), profilePasswordChange.oldPassword());
-        User user = userService.findUserByUsername(profilePasswordChange.username());
-        stringChecker(profilePasswordChange.newPassword(), "new password");
-        userService.changePassword(user, profilePasswordChange.newPassword());
-        return trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("Trainer not found with userId" + user.getId()));
-
-    }
 
     @Override
     @Transactional
-    public void changeStatusTrainer(ProfileStatusChangeDto profileStatusChangeDto) {
-        AuthUserDto authUserDto = profileStatusChangeDto.authUser();
-        userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
-        User user = userService.findUserByUsername(authUserDto.getUsername());
-        userService.changeStatus(user, profileStatusChangeDto.status());
+    public void changeStatusTrainer(ChangeStatusDto changeStatusDto, String authUsername) {
+        AuthHandler.checkAuthorization(authUsername, authUsername);
+        User user = userService.findUserByUsername(authUsername);
         trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("Trainer not found with userId" + user.getId()));
+        userService.changeStatus(user, changeStatusDto.getIsActive());
 
     }
 
 
     @Transactional(readOnly = true)
     @Override
-    public List<Training> getTrainingsByCriteria(AuthUserDto authUserDto, TrainerCriteriaDto trainerCriteriaDto) {
-        userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
-        User user  = userService.findUserByUsername(authUserDto.getUsername());
-       return trainingRepository.findByCriteria(user.getUsername(), trainerCriteriaDto);
+    public List<TrainingsDisplayInfoTrainer> getTrainingsByCriteria(TrainerTrainingsDto trainerTrainingsDto) {
+       List<Training> trainings = trainingRepository.findByCriteria(trainerTrainingsDto.getUsername(), trainerTrainingsDto);
+       return trainings.stream().map(this::toTrainerTrainingsDto).toList();
 
     }
 
@@ -197,6 +196,16 @@ public class TrainerServiceImpl implements TrainerService {
                 .firstName(trainee.getUser().getFirstName())
                 .lastName(trainee.getUser().getLastName())
                 .username(trainee.getUser().getUsername())
+                .build();
+    }
+
+    private TrainingsDisplayInfoTrainer toTrainerTrainingsDto(Training training) {
+        return TrainingsDisplayInfoTrainer.builder()
+                .traineeName(training.getTrainee().getUser().getFirstName())
+                .trainingDate(training.getDate())
+                .trainingDuration(training.getDuration())
+                .trainingName(training.getTrainingName())
+                .trainingType(training.getTrainingType().getName())
                 .build();
     }
 

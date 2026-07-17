@@ -27,8 +27,8 @@ public class TrainingMapper implements Mapper<Training, TrainingDto> {
         training.setTrainingName(trainingDto.getTrainingName());
         training.setTrainingType(trainingTypeService.findByName(trainingDto.getTrainingType()));
         training.setDate(trainingDto.getTrainingStart());
-        training.setTrainer(trainerService.getTrainerById(trainingDto.getTrainerId()));
-        training.setTrainee(traineeService.getTraineeById(trainingDto.getTraineeId()));
+        training.setTrainer(trainerService.getTrainerByUsername(trainingDto.getTrainerUsername()));
+        training.setTrainee(traineeService.getTraineeByUsername(trainingDto.getTraineeUsername()));
         training.setDuration(trainingDto.getDuration());
 
         return training;

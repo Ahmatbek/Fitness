@@ -41,8 +41,8 @@ class TrainingMapperTest {
     @Test
     void toEntity_mapsAllFieldsFromDto() {
         TrainingDto dto = new TrainingDto();
-        dto.setTraineeId(1L);
-        dto.setTrainerId(2L);
+        dto.setTraineeUsername("Nurlan");
+        dto.setTrainerUsername("Bekzat");
         dto.setTrainingName("session-1");
         dto.setTrainingType("individual");
         dto.setTrainingStart(LocalDate.of(2026, 8, 1));
@@ -53,8 +53,8 @@ class TrainingMapperTest {
         Trainee trainee = new Trainee();
 
         when(trainingTypeService.findByName("individual")).thenReturn(type);
-        when(trainerService.getTrainerById(2L)).thenReturn(trainer);
-        when(traineeService.getTraineeById(1L)).thenReturn(trainee);
+        when(trainerService.getTrainerByUsername("Bekzat")).thenReturn(trainer);
+        when(traineeService.getTraineeByUsername("Nurlan")).thenReturn(trainee);
 
         Training training = trainingMapper.toEntity(dto);
 

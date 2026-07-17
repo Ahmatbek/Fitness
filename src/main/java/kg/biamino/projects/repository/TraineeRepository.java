@@ -1,6 +1,7 @@
 package kg.biamino.projects.repository;
 
 import kg.biamino.projects.model.Trainee;
+import kg.biamino.projects.model.Trainer;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,4 +22,5 @@ public interface TraineeRepository {
     Optional<Trainee> findByUserId(Long id);
 
     Optional<Trainee> findByUserIdToGetTrainers(Long id);
+
 }

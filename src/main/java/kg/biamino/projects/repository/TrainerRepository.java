@@ -17,4 +17,6 @@ public interface TrainerRepository {
     Trainer update(Trainer trainer);
 
     List<Trainer> findNotAssignedTrainees(Long traineeId);
+
+    List<Trainer> findNotAssignedTrainersByTraineeId(Long id);
 }

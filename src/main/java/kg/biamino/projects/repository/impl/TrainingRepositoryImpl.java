@@ -2,6 +2,9 @@ package kg.biamino.projects.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import kg.biamino.projects.dto.TraineeTrainingsDto;
+import kg.biamino.projects.dto.TrainerTrainingsDto;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.records.TraineeCriteriaDto;
 import kg.biamino.projects.records.TrainerCriteriaDto;
@@ -40,36 +43,74 @@ public class TrainingRepositoryImpl implements TrainingRepository {
 
 
     @Override
-    public List<Training> findByCriteria(String username , TraineeCriteriaDto traineeCriteriaDto) {
-        return entityManager.createQuery("""
-        SELECT t from Training t 
-         where t.trainee.user.username = :username
-         and t.trainer.user.firstName = :trainerFirstName
-          and t.trainingType.name=:trainingTypeName
-          and t.date between :startDate and :endDate
-""", Training.class)
-                .setParameter("username", username)
-                .setParameter("startDate", traineeCriteriaDto.startDate())
-                .setParameter("endDate", traineeCriteriaDto.endDate())
-                .setParameter("trainingTypeName", traineeCriteriaDto.trainingTypeName())
-                .setParameter("trainerFirstName", traineeCriteriaDto.trainerFirstName())
-                .getResultList();
+    public List<Training> findByCriteria(String username, TraineeTrainingsDto criteria) {
+        StringBuilder jpql = new StringBuilder("""
+        SELECT t FROM Training t
+        WHERE t.trainee.user.username = :username
+        """);
+
+        if (criteria.getFrom() != null) {
+            jpql.append(" AND t.date >= :startDate");
+        }
+        if (criteria.getTo() != null) {
+            jpql.append(" AND t.date <= :endDate");
+        }
+        if (criteria.getTrainerName() != null) {
+            jpql.append(" AND t.trainer.user.firstName = :trainerFirstName");
+        }
+        if (criteria.getTrainingType() != null) {
+            jpql.append(" AND t.trainingType.name = :trainingTypeName");
+        }
+
+        TypedQuery<Training> query = entityManager.createQuery(jpql.toString(), Training.class);
+        query.setParameter("username", username);
+
+        if (criteria.getFrom() != null) {
+            query.setParameter("startDate", criteria.getFrom());
+        }
+        if (criteria.getTo() != null) {
+            query.setParameter("endDate", criteria.getTo());
+        }
+        if (criteria.getTrainerName() != null) {
+            query.setParameter("trainerFirstName", criteria.getTrainerName());
+        }
+        if (criteria.getTrainingType() != null) {
+            query.setParameter("trainingTypeName", criteria.getTrainingType());
+        }
+
+        return query.getResultList();
     }
 
-
     @Override
-    public List<Training> findByCriteria(String  username, TrainerCriteriaDto traineeCriteriaDto) {
+    public List<Training> findByCriteria(String  username, TrainerTrainingsDto trainerTrainingsDto) {
 
-        return entityManager.createQuery("""
-        SELECT t from Training t 
-        where t.trainer.user.username = :username
-        and t.trainee.user.firstName = :traineeFirstName
-        and t.date between :startDate and :endDate
-""" ,Training.class)
-                .setParameter("username", username)
-                .setParameter("startDate", traineeCriteriaDto.startDate())
-                .setParameter("endDate", traineeCriteriaDto.endDate())
-                .setParameter("traineeFirstName", traineeCriteriaDto.traineeName())
-                .getResultList();
+        StringBuilder jpql = new StringBuilder("""
+                SELECT t FROM Training t
+                WHERE t.trainer.user.username = :username
+                """);
+        if(trainerTrainingsDto.getFrom() != null) {
+            jpql.append(" AND t.date >= :startDate");
+        }
+        if(trainerTrainingsDto.getTo() != null) {
+            jpql.append(" AND t.date <= :endDate");
+        }
+        if(trainerTrainingsDto.getTraineeName() != null) {
+            jpql.append(" AND t.trainee.user.firstName = :traineeFirstName");
+        }
+        TypedQuery<Training> query = entityManager.createQuery(jpql.toString(), Training.class);
+        query.setParameter("username", username);
+        if(trainerTrainingsDto.getFrom() != null) {
+            query.setParameter("startDate", trainerTrainingsDto.getFrom());
+        }
+        if(trainerTrainingsDto.getTo() != null) {
+            query.setParameter("endDate", trainerTrainingsDto.getTo());
+        }
+        if(trainerTrainingsDto.getTraineeName() != null) {
+            query.setParameter("traineeFirstName", trainerTrainingsDto.getTraineeName());
+        }
+        return query.getResultList();
+
+
+
     }
 }
