@@ -33,7 +33,7 @@ public class TrainingTypeRepositoryImpl implements TrainingTypeRepository {
     public Optional<TrainingType> findByName(String name) {
         return Optional.ofNullable(em.createQuery("from TrainingType t where t.name=:name", TrainingType.class)
                 .setParameter("name", name)
-                .getSingleResult());
+                .getResultList().getFirst());
     }
 
     @Override

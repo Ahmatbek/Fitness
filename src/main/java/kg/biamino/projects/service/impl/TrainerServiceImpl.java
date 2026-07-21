@@ -97,7 +97,7 @@ public class TrainerServiceImpl implements TrainerService {
         User user1 = userService.updateUser(authUsername, trainerDto, trainerDto.getIsActive());
         Trainer trainer = trainerRepository.findByUserId(user1.getId()).orElseThrow(()-> new NoSuchElementException("Trainer with id " + user1.getId() + " not found"));
 
-        trainerRepository.update(trainer);
+//        trainerRepository.update(trainer);
         log.info("Updating trainer with id {}", user1.getId());
 
         return TrainerTraineesListDto.builder()
