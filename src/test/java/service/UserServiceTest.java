@@ -6,7 +6,6 @@ import kg.biamino.projects.exception.AuthenticationException;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.exception.UserNotFoundException;
 import kg.biamino.projects.model.User;
-import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

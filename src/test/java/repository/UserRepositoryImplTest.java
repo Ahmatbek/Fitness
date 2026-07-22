@@ -1,7 +1,6 @@
 package repository;
 
 import kg.biamino.projects.model.User;
-import kg.biamino.projects.repository.impl.UserRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

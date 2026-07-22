@@ -1,6 +1,5 @@
 package kg.biamino.projects.service.impl;
 
-import kg.biamino.projects.dto.AuthUserDto;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.mapper.impl.TrainingMapper;
 import kg.biamino.projects.model.Training;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static kg.biamino.projects.utils.ValidationInput.integerChecker;

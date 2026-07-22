@@ -3,7 +3,6 @@ package service;
 import kg.biamino.projects.dto.TrainingTypeDto;
 import kg.biamino.projects.exception.TrainingTypeNotFoundException;
 import kg.biamino.projects.model.TrainingType;
-import kg.biamino.projects.repository.TrainingTypeRepository;
 import kg.biamino.projects.service.impl.TrainingTypeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

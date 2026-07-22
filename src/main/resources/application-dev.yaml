@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show_sql: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fitness-dev
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/master-dev.yaml
+
+

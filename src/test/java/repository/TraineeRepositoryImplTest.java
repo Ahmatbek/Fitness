@@ -4,7 +4,7 @@ import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.TrainingType;
 import kg.biamino.projects.model.User;
-import kg.biamino.projects.repository.impl.TraineeRepositoryImpl;
+import kg.biamino.projects.repository.TraineeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TraineeRepositoryImplTest extends AbstractRepositoryTest {
 
-    private TraineeRepositoryImpl traineeRepository;
+    private TraineeRepository traineeRepository;
 
     @BeforeEach
     void setUp() {
-        traineeRepository = injectEntityManager(new TraineeRepositoryImpl(), "entityManager");
+        traineeRepository = new TraineeRepositoryImpl();
     }
 
     @Test

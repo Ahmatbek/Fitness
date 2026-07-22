@@ -10,11 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class TrainingTypeServiceImpl implements TrainingTypeService {
-    private  TrainingTypeRepository trainingTypeRepository;
+    private TrainingTypeRepository trainingTypeRepository;
 
     @Autowired
     public void setTrainingTypeRepository(TrainingTypeRepository trainingTypeRepository) {

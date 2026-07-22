@@ -6,8 +6,6 @@ import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.TrainingType;
-import kg.biamino.projects.model.User;
-import kg.biamino.projects.repository.impl.TrainingRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

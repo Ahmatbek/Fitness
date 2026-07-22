@@ -1,0 +1,1 @@
+alter table trainings drop column if exists trainingname

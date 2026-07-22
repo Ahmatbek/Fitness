@@ -1,19 +1,19 @@
 package kg.biamino.projects.service.impl;
 
+import jakarta.persistence.criteria.Predicate;
 import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.User;
-import kg.biamino.projects.repository.TraineeRepository;
-import kg.biamino.projects.repository.TrainerRepository;
-import kg.biamino.projects.repository.TrainingRepository;
+import kg.biamino.projects.repository.*;
 import kg.biamino.projects.service.TrainerService;
 import kg.biamino.projects.service.TrainingTypeService;
 import kg.biamino.projects.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +97,6 @@ public class TrainerServiceImpl implements TrainerService {
         User user1 = userService.updateUser(authUsername, trainerDto, trainerDto.getIsActive());
         Trainer trainer = trainerRepository.findByUserId(user1.getId()).orElseThrow(()-> new NoSuchElementException("Trainer with id " + user1.getId() + " not found"));
 
-//        trainerRepository.update(trainer);
         log.info("Updating trainer with id {}", user1.getId());
 
         return TrainerTraineesListDto.builder()
@@ -142,8 +141,34 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<TrainingsDisplayInfoTrainer> getTrainingsByCriteria(TrainerTrainingsDto trainerTrainingsDto) {
-       List<Training> trainings = trainingRepository.findByCriteria(trainerTrainingsDto.getUsername(), trainerTrainingsDto);
+    public List<TrainingsDisplayInfoTrainer> getTrainingsByCriteria(TrainerTrainingsDto criteria) {
+        Specification<Training> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(
+                    root.join("trainer").join("user").get("username"),
+                    criteria.getUsername()
+            ));
+
+            if (criteria.getFrom() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("date"), criteria.getFrom()));
+            }
+
+            if (criteria.getTo() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("date"), criteria.getTo()));
+            }
+
+            if (criteria.getTraineeName() != null) {
+                predicates.add(cb.equal(
+                        root.join("trainee").join("user").get("firstName"),
+                        criteria.getTraineeName()
+                ));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+       List<Training> trainings = trainingRepository.findAll(spec);
        return trainings.stream().map(this::toTrainerTrainingsDto).toList();
 
     }
@@ -153,7 +178,7 @@ public class TrainerServiceImpl implements TrainerService {
     public List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos, Long id) {
         userService.userAuthenticated(authUserDto.getUsername(), authUserDto.getPassword());
         User user = userService.findUserByUsername(authUserDto.getUsername());
-        Trainee trainee = traineeRepository.findByUserId(user.getId())
+        Trainee trainee = traineeRepository.findTraineeByUserId(user.getId())
                 .orElseThrow(() -> new NoSuchElementException("user doesn't have trainee profile"));
         nullChecker(trainee, "trainee");
 

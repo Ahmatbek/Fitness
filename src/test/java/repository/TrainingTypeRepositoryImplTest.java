@@ -2,7 +2,6 @@ package repository;
 
 import jakarta.persistence.NoResultException;
 import kg.biamino.projects.model.TrainingType;
-import kg.biamino.projects.repository.impl.TrainingTypeRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

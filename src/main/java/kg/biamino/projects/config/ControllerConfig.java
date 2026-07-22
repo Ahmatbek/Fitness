@@ -9,11 +9,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@EnableWebMvc
-@ComponentScan(
-        basePackages = "kg.biamino.projects",
-        includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, value=Controller.class),
-        useDefaultFilters = false)
 public class ControllerConfig implements WebMvcConfigurer {
 
 

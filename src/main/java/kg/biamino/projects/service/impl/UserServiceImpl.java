@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
         user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : user.getLastName());
         user.setIsActive(status);
         log.info("Updated user {}", user.getFirstName());
-        userRepository.update(user);
+        userRepository.save(user);
         return user;
     }
 
@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
     public void changePassword(User user, String newPassword) {
         stringChecker(newPassword, "newPassword");
         user.setPassword(newPassword);
-        userRepository.update(user);
+        userRepository.save(user);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class UserServiceImpl implements UserService {
             throw new AuthorizationException("Authenticated User doesnt have permissions change other users");
         }
         user.setPassword(changePasswordDto.newPassword());
-        userRepository.update(user);
+        userRepository.save(user);
 
     }
 
@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService {
     public void changeStatus(User user, Boolean status) {
         nullChecker(status, "status");
         user.setIsActive(status);
-        userRepository.update(user);
+        userRepository.save(user);
 
     }
 
