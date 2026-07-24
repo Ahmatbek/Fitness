@@ -1,5 +1,6 @@
 package service;
 
+import jakarta.persistence.criteria.Predicate;
 import kg.biamino.projects.dto.AuthUserDto;
 import kg.biamino.projects.dto.ChangeStatusDto;
 import kg.biamino.projects.dto.TrainerDto;
@@ -14,6 +15,9 @@ import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.TrainingType;
 import kg.biamino.projects.model.User;
+import kg.biamino.projects.repository.TraineeRepository;
+import kg.biamino.projects.repository.TrainerRepository;
+import kg.biamino.projects.repository.TrainingRepository;
 import kg.biamino.projects.service.TrainingTypeService;
 import kg.biamino.projects.service.UserService;
 import kg.biamino.projects.service.impl.TrainerServiceImpl;
@@ -22,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -142,7 +148,7 @@ class TrainerServiceTest {
         dto.setIsActive(true);
         when(userService.updateUser("Aidana.Toktosunova", dto, true)).thenReturn(user);
         when(trainerRepository.findByUserId(2L)).thenReturn(Optional.of(trainer));
-        when(trainerRepository.update(trainer)).thenReturn(trainer);
+//        when(trainerRepository.save(trainer)).thenReturn(trainer);
 
         TrainerTraineesListDto result = trainerService.updateTrainer(dto, "Aidana.Toktosunova");
 
@@ -161,7 +167,6 @@ class TrainerServiceTest {
         dto.setIsActive(true);
         when(userService.updateUser("Aidana.Toktosunova", dto, true)).thenReturn(user);
         when(trainerRepository.findByUserId(2L)).thenReturn(Optional.of(trainer));
-        when(trainerRepository.update(trainer)).thenReturn(trainer);
 
         TrainerTraineesListDto result = trainerService.updateTrainer(dto, "Aidana.Toktosunova");
 
@@ -252,7 +257,10 @@ class TrainerServiceTest {
         training.setDate(LocalDate.now());
         training.setDuration(60);
 
-        when(trainingRepository.findByCriteria("Aidana.Toktosunova", criteria)).thenReturn(List.of(training));
+
+
+
+        when(trainingRepository.findAll(any(Specification.class))).thenReturn(List.of(training));
 
         List<TrainingsDisplayInfoTrainer> result = trainerService.getTrainingsByCriteria(criteria);
 
@@ -273,7 +281,7 @@ class TrainerServiceTest {
         dto.setId(30L);
         AuthUserDto authUserDto = new AuthUserDto("Aidana.Toktosunova", "pass123");
         when(userService.findUserByUsername("Aidana.Toktosunova")).thenReturn(user);
-        when(traineeRepository.findByUserId(2L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserId(2L)).thenReturn(Optional.of(trainee));
         when(trainerRepository.findById(30L)).thenReturn(Optional.of(newTrainer));
         when(trainerRepository.save(any(Trainer.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -291,7 +299,7 @@ class TrainerServiceTest {
 
         AuthUserDto authUserDto = new AuthUserDto("Aidana.Toktosunova", "pass123");
         when(userService.findUserByUsername("Aidana.Toktosunova")).thenReturn(user);
-        when(traineeRepository.findByUserId(2L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserId(2L)).thenReturn(Optional.of(trainee));
         when(trainerRepository.save(any(Trainer.class))).thenAnswer(inv -> inv.getArgument(0));
 
         List<Trainer> result = trainerService.updateTraineeTrainersList(authUserDto, List.of(), 10L);
@@ -306,7 +314,7 @@ class TrainerServiceTest {
         dto.setId(999L);
         AuthUserDto authUserDto = new AuthUserDto("Aidana.Toktosunova", "pass123");
         when(userService.findUserByUsername("Aidana.Toktosunova")).thenReturn(user);
-        when(traineeRepository.findByUserId(2L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserId(2L)).thenReturn(Optional.of(trainee));
         when(trainerRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
@@ -317,7 +325,7 @@ class TrainerServiceTest {
     void updateTraineeTrainersList_noTraineeProfile_throwsNoSuchElementException() {
         AuthUserDto authUserDto = new AuthUserDto("Aidana.Toktosunova", "pass123");
         when(userService.findUserByUsername("Aidana.Toktosunova")).thenReturn(user);
-        when(traineeRepository.findByUserId(2L)).thenReturn(Optional.empty());
+        when(traineeRepository.findTraineeByUserId(2L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
                 () -> trainerService.updateTraineeTrainersList(authUserDto, List.of(), 10L));

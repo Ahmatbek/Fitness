@@ -1,5 +1,7 @@
 package kg.biamino.projects.service.impl;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.exception.AuthorizationException;
@@ -29,6 +31,8 @@ import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 
 @Service
 @Slf4j
+@Counted(value = "trainee.methods", description = "the number of call traineeService")
+@Timed(value = "trainee", description = "amount of time each method executes")
 public class TraineeServiceImpl implements TraineeService {
 
     private TraineeRepository traineeRepository;

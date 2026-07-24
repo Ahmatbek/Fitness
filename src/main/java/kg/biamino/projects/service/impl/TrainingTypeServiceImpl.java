@@ -1,5 +1,7 @@
 package kg.biamino.projects.service.impl;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import kg.biamino.projects.dto.TrainingTypeDto;
 import kg.biamino.projects.exception.TrainingTypeNotFoundException;
 import kg.biamino.projects.model.TrainingType;
@@ -12,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Counted(value = "training-type.methods", description = "userService number of times each method is called")
+@Timed(value = "training-type", description = "amount of time each method executes")
 public class TrainingTypeServiceImpl implements TrainingTypeService {
     private TrainingTypeRepository trainingTypeRepository;
 

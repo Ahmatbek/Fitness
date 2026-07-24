@@ -25,3 +25,16 @@ spring:
     change-log: classpath:db/changelog/master-prod.yaml
     enabled: true
 
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: health, prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: backend
+

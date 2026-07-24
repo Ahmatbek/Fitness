@@ -16,11 +16,9 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         generate_statistics: true
     show_sql: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   liquibase:
     enabled: true
@@ -28,7 +26,7 @@ spring:
     drop-first: false
 
   profiles:
-    active: default
+    active: dev
 
 management:
   endpoints:

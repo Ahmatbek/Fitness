@@ -1,5 +1,7 @@
 package kg.biamino.projects.service.impl;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import jakarta.persistence.criteria.Predicate;
 import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.dto.*;
@@ -25,6 +27,8 @@ import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 
 @Service
 @Slf4j
+@Counted(value = "trainer.methods", description = "userService number of times each method is called")
+@Timed(value = "trainer", description = "amount of time each method executes")
 public class TrainerServiceImpl implements TrainerService {
 
     private TrainerRepository trainerRepository;
@@ -62,6 +66,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
+    @Timed(value = "trainer.create.time", description = "Time to create trainer")
     public Trainer getTrainerByUsername(String username) {
         log.info("Getting trainer with username {}", username);
         User user = userService.findUserByUsername(username);
@@ -121,6 +126,7 @@ public class TrainerServiceImpl implements TrainerService {
         return TrainerTraineesListDto.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .username(user.getUsername())
                 .specialization(trainer.getSpecialization().getName())
                 .isActive(user.getIsActive())
                 .trainees(trainer.getTrainees().stream().map(this::toTraineeUsernameDto).toList())

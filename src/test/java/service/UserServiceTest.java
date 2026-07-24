@@ -6,6 +6,7 @@ import kg.biamino.projects.exception.AuthenticationException;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.exception.UserNotFoundException;
 import kg.biamino.projects.model.User;
+import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -136,7 +137,7 @@ class UserServiceTest {
         assertEquals("Aigerim", result.getFirstName());
         assertEquals("Bekova", result.getLastName());
         assertTrue(result.getIsActive());
-        verify(userRepository).update(user);
+        verify(userRepository).save(user);
     }
 
     @Test
@@ -223,7 +224,7 @@ class UserServiceTest {
         userService.changePassword(user, "newPass123");
 
         assertEquals("newPass123", user.getPassword());
-        verify(userRepository).update(user);
+        verify(userRepository).save(user);
     }
 
     @Test
@@ -231,7 +232,7 @@ class UserServiceTest {
         User user = existingUser("Nurlan.Bekov", "old", true);
 
         assertThrows(IllegalArgumentException.class, () -> userService.changePassword(user, "   "));
-        verify(userRepository, never()).update(any());
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -243,7 +244,7 @@ class UserServiceTest {
         userService.changePassword(dto, "Nurlan.Bekov");
 
         assertEquals("NewPass1", user.getPassword());
-        verify(userRepository).update(user);
+        verify(userRepository).save(user);
     }
 
     @Test
@@ -253,7 +254,7 @@ class UserServiceTest {
         ChangePasswordDto dto = new ChangePasswordDto("Nurlan.Bekov", "OldPass1", "NewPass1");
 
         assertThrows(AuthorizationException.class, () -> userService.changePassword(dto, "Someone.Else"));
-        verify(userRepository, never()).update(any());
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -263,7 +264,7 @@ class UserServiceTest {
         ChangePasswordDto dto = new ChangePasswordDto("Nurlan.Bekov", "WrongPass", "NewPass1");
 
         assertThrows(AuthenticationException.class, () -> userService.changePassword(dto, "Nurlan.Bekov"));
-        verify(userRepository, never()).update(any());
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -273,7 +274,7 @@ class UserServiceTest {
         userService.changeStatus(user, false);
 
         assertFalse(user.getIsActive());
-        verify(userRepository).update(user);
+        verify(userRepository).save(user);
     }
 
     @Test
@@ -281,6 +282,6 @@ class UserServiceTest {
         User user = existingUser("Nurlan.Bekov", "pass", true);
 
         assertThrows(IllegalArgumentException.class, () -> userService.changeStatus(user, null));
-        verify(userRepository, never()).update(any());
+        verify(userRepository, never()).save(any());
     }
 }

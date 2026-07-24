@@ -1,5 +1,6 @@
 package service;
 
+import jakarta.persistence.criteria.Predicate;
 import kg.biamino.projects.dto.ChangeStatusDto;
 import kg.biamino.projects.dto.TraineeDto;
 import kg.biamino.projects.dto.TraineeTrainersListDto;
@@ -16,6 +17,9 @@ import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.TrainingType;
 import kg.biamino.projects.model.User;
+import kg.biamino.projects.repository.TraineeRepository;
+import kg.biamino.projects.repository.TrainerRepository;
+import kg.biamino.projects.repository.TrainingRepository;
 import kg.biamino.projects.service.UserService;
 import kg.biamino.projects.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -77,7 +82,7 @@ class TraineeServiceTest {
     @Test
     void getTraineeByUsername_found_returnsTrainee() {
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUserId(1L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.of(trainee));
 
         assertEquals(trainee, traineeService.getTraineeByUsername("Nurlan.Bekov"));
     }
@@ -85,7 +90,7 @@ class TraineeServiceTest {
     @Test
     void getTraineeByUsername_notFound_throwsNoSuchElementException() {
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> traineeService.getTraineeByUsername("Nurlan.Bekov"));
     }
@@ -132,8 +137,8 @@ class TraineeServiceTest {
         dto.setDateOfBirth(LocalDate.of(1999, 5, 5));
         dto.setIsActive(true);
         when(userService.updateUser("Nurlan.Bekov", dto, true)).thenReturn(user);
-        when(traineeRepository.findByUserIdToGetTrainers(1L)).thenReturn(Optional.of(trainee));
-        when(traineeRepository.update(trainee)).thenReturn(trainee);
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.save(trainee)).thenReturn(trainee);
 
         TraineeTrainersListDto result = traineeService.updateTrainee(dto, "Nurlan.Bekov");
 
@@ -149,8 +154,8 @@ class TraineeServiceTest {
         dto.setUsername("Nurlan.Bekov");
         dto.setIsActive(true);
         when(userService.updateUser("Nurlan.Bekov", dto, true)).thenReturn(user);
-        when(traineeRepository.findByUserIdToGetTrainers(1L)).thenReturn(Optional.of(trainee));
-        when(traineeRepository.update(trainee)).thenReturn(trainee);
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.save(trainee)).thenReturn(trainee);
 
         TraineeTrainersListDto result = traineeService.updateTrainee(dto, "Nurlan.Bekov");
 
@@ -191,7 +196,7 @@ class TraineeServiceTest {
         dto.setUsername("Nurlan.Bekov");
         dto.setIsActive(true);
         when(userService.updateUser("Nurlan.Bekov", dto, true)).thenReturn(user);
-        when(traineeRepository.findByUserIdToGetTrainers(1L)).thenReturn(Optional.empty());
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> traineeService.updateTrainee(dto, "Nurlan.Bekov"));
     }
@@ -199,7 +204,7 @@ class TraineeServiceTest {
     @Test
     void findByUsername_success_returnsTrainee() {
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUserIdToGetTrainers(1L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.of(trainee));
 
         TraineeTrainersListDto result = traineeService.findByUsername("Nurlan.Bekov");
 
@@ -217,7 +222,7 @@ class TraineeServiceTest {
     @Test
     void findByUsername_noTraineeProfile_throwsNoSuchElementException() {
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUserIdToGetTrainers(1L)).thenReturn(Optional.empty());
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> traineeService.findByUsername("Nurlan.Bekov"));
     }
@@ -228,7 +233,7 @@ class TraineeServiceTest {
         dto.setUsername("Nurlan.Bekov");
         dto.setIsActive(false);
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUserId(1L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.of(trainee));
 
         traineeService.changeStatusTrainer(dto, "Nurlan.Bekov");
 
@@ -251,7 +256,7 @@ class TraineeServiceTest {
         dto.setUsername("Nurlan.Bekov");
         dto.setIsActive(false);
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> traineeService.changeStatusTrainer(dto, "Nurlan.Bekov"));
         verify(userService, never()).changeStatus(any(), any());
@@ -275,7 +280,7 @@ class TraineeServiceTest {
         training.setDate(LocalDate.now());
         training.setDuration(45);
 
-        when(trainingRepository.findByCriteria("Nurlan.Bekov", criteria)).thenReturn(List.of(training));
+        when(trainingRepository.findAll(any(Specification.class))).thenReturn(List.of(training));
 
         List<TrainingsDisplayInfoTrainee> result = traineeService.getTrainingsByCriteria(criteria);
 
@@ -288,7 +293,7 @@ class TraineeServiceTest {
     @Test
     void deleteTraineeByUsername_success_deletesTrainee() {
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUserIdToGetTrainers(1L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.of(trainee));
 
         traineeService.deleteTraineeByUsername("Nurlan.Bekov", "Nurlan.Bekov");
 
@@ -305,7 +310,7 @@ class TraineeServiceTest {
     @Test
     void deleteTraineeByUsername_noTraineeProfile_throwsNoSuchElementException() {
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUserIdToGetTrainers(1L)).thenReturn(Optional.empty());
+        when(traineeRepository.findTraineeByUserId(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
                 () -> traineeService.deleteTraineeByUsername("Nurlan.Bekov", "Nurlan.Bekov"));
@@ -323,8 +328,8 @@ class TraineeServiceTest {
         trainer.setSpecialization(new TrainingType("group"));
 
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUsername("Nurlan.Bekov")).thenReturn(Optional.of(trainee));
-        when(trainerRepository.findNotAssignedTrainersByTraineeId(trainee.getId())).thenReturn(List.of(trainer));
+        when(traineeRepository.findTraineeByUserUsername("Nurlan.Bekov")).thenReturn(Optional.of(trainee));
+        when(trainerRepository.findNotAssignedTrainees(trainee.getId())).thenReturn(List.of(trainer));
 
         List<TrainerUsernameDto> result = traineeService.findNotAssignedTrainersByUsername("Nurlan.Bekov");
 
@@ -342,7 +347,7 @@ class TraineeServiceTest {
     @Test
     void findNotAssignedTrainersByUsername_noTraineeProfile_throwsNoSuchElementException() {
         when(userService.findUserByUsername("Nurlan.Bekov")).thenReturn(user);
-        when(traineeRepository.findByUsername("Nurlan.Bekov")).thenReturn(Optional.empty());
+        when(traineeRepository.findTraineeByUserUsername("Nurlan.Bekov")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
                 () -> traineeService.findNotAssignedTrainersByUsername("Nurlan.Bekov"));
@@ -361,7 +366,7 @@ class TraineeServiceTest {
         trainer.setTrainees(new ArrayList<>());
 
         UpdateTraineeTrainersDto dto = new UpdateTraineeTrainersDto("Nurlan.Bekov", List.of("Bekzat.Isakov"));
-        when(traineeRepository.findByUsername("Nurlan.Bekov")).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserUsername("Nurlan.Bekov")).thenReturn(Optional.of(trainee));
         when(userService.findUserByUsername("Bekzat.Isakov")).thenReturn(trainerUser);
         when(trainerRepository.findByUserId(5L)).thenReturn(Optional.of(trainer));
 
@@ -383,7 +388,7 @@ class TraineeServiceTest {
         trainee.setTrainers(new ArrayList<>(List.of(trainer)));
 
         UpdateTraineeTrainersDto dto = new UpdateTraineeTrainersDto("Nurlan.Bekov", List.of());
-        when(traineeRepository.findByUsername("Nurlan.Bekov")).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserUsername("Nurlan.Bekov")).thenReturn(Optional.of(trainee));
 
         List<TrainerUsernameDto> result = traineeService.updateTrainersByUsername(dto, "Nurlan.Bekov");
 
@@ -404,7 +409,7 @@ class TraineeServiceTest {
     @Test
     void updateTrainersByUsername_traineeNotFound_throwsNoSuchElementException() {
         UpdateTraineeTrainersDto dto = new UpdateTraineeTrainersDto("Nurlan.Bekov", List.of());
-        when(traineeRepository.findByUsername("Nurlan.Bekov")).thenReturn(Optional.empty());
+        when(traineeRepository.findTraineeByUserUsername("Nurlan.Bekov")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
                 () -> traineeService.updateTrainersByUsername(dto, "Nurlan.Bekov"));
@@ -417,7 +422,7 @@ class TraineeServiceTest {
         trainerUser.setUsername("Ghost.Trainer");
 
         UpdateTraineeTrainersDto dto = new UpdateTraineeTrainersDto("Nurlan.Bekov", List.of("Ghost.Trainer"));
-        when(traineeRepository.findByUsername("Nurlan.Bekov")).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findTraineeByUserUsername("Nurlan.Bekov")).thenReturn(Optional.of(trainee));
         when(userService.findUserByUsername("Ghost.Trainer")).thenReturn(trainerUser);
         when(trainerRepository.findByUserId(5L)).thenReturn(Optional.empty());
 

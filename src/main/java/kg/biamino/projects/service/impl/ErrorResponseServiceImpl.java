@@ -17,51 +17,6 @@ import java.util.*;
 @Service
 public class ErrorResponseServiceImpl implements ErrorResponseService {
 
-//    @Override
-//    public ErrorResponseBody makeResponse(IllegalArgumentException message) {
-//
-//        String mess = Optional.ofNullable(message.getMessage())
-//                .orElse("Exception occurred");
-//        log.error(mess);
-//        return ErrorResponseBody.builder()
-//                .title("Error")
-//                .details(Map.of("errors", List.of(mess)))
-//                .build();
-//    }
-//
-//    @Override
-//    public ErrorResponseBody makeResponse(AuthenticationException authenticationException) {
-//        String mess = Optional.ofNullable(authenticationException.getMessage()).orElse("Exception occurred");
-//        return ErrorResponseBody.builder()
-//                .title("Authentication Failed")
-//                .details(Map.of("errors", List.of(authenticationException.getMessage())))
-//                .build();
-//    }
-//
-//    @Override
-//    public ErrorResponseBody makeResponse(TrainingTypeNotFoundException trainingTypeNotFoundException) {
-//        String mes = Optional.ofNullable(trainingTypeNotFoundException.getMessage()).orElse("Training Type  error");
-//
-//        return ErrorResponseBody.builder()
-//                .title("Training Type Error")
-//                .details(Map.of("errors", List.of(mes)))
-//                .build();
-//
-//    }
-//
-//    @Override
-//    public ErrorResponseBody makeResponse(ConstraintViolationException constraintViolationException) {
-//        Set<ConstraintViolation<?>> mess = constraintViolationException.getConstraintViolations();
-//
-//        List<String> errors = mess.stream()
-//                .map(ConstraintViolation::getMessage)
-//                .toList();
-//
-//        return ErrorResponseBody.builder()
-//                .title("Constraint Violation")
-//                .details(Map.of("error", errors))
-//                .build();
-//    }
 
     @Override
     public ErrorResponseBody makeResponse(MethodArgumentNotValidException message) {
@@ -85,18 +40,7 @@ public class ErrorResponseServiceImpl implements ErrorResponseService {
 
         return errorResponseBody;
     }
-//
-//    @Override
-//    public ErrorResponseBody makeResponse(AuthorizationException validationException) {
-//        String mess = Optional.ofNullable(validationException.getMessage())
-//                .orElse("authorization exception occurred");
-//
-//        return ErrorResponseBody.builder()
-//                .title("Authorization Error")
-//                .details(Map.of("errors", List.of(mess)))
-//                .build();
-//
-//    }
+
 
 
     @Override

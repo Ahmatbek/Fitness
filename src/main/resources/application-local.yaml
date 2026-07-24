@@ -26,5 +26,17 @@ spring:
     change-log: classpath:db/changelog/master-local.yaml
     drop-first: false
 
-  profiles:
-    active: dev
+
+
+management:
+      endpoints:
+        enabled-by-default: true
+        web:
+          exposure:
+            include: health, prometheus
+      endpoint:
+        health:
+          show-details: always
+      metrics:
+        tags:
+          application: backend

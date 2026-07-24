@@ -1,5 +1,7 @@
 package kg.biamino.projects.service.impl;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import kg.biamino.projects.dto.ChangePasswordDto;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.exception.AuthenticationException;
@@ -22,6 +24,8 @@ import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 
 @Service
 @Slf4j
+@Counted(value = "users.methods", description = "userService number of times each method is called")
+@Timed(value = "users", description = "amount of time each method executes")
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;

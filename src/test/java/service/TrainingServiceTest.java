@@ -3,6 +3,7 @@ package service;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.mapper.impl.TrainingMapper;
 import kg.biamino.projects.model.Training;
+import kg.biamino.projects.repository.TrainingRepository;
 import kg.biamino.projects.service.impl.TrainingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
