@@ -8,11 +8,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.service.TraineeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("trainees")
@@ -20,11 +21,9 @@ import org.springframework.web.bind.annotation.*;
 public class TraineeController {
 
     private final TraineeService traineeService;
-    private final AuthHandler authHandler;
 
-    public TraineeController(TraineeService traineeService, AuthHandler authHandler) {
+    public TraineeController(TraineeService traineeService) {
         this.traineeService = traineeService;
-        this.authHandler = authHandler;
     }
 
 
@@ -38,7 +37,7 @@ public class TraineeController {
        return ResponseEntity.ok(traineeService.createTrainee(traineeDto));
     }
 
-    @GetMapping()
+    @GetMapping
     @Operation(summary = "return trainee by their username")
     @ApiResponses(value = {
            @ApiResponse(responseCode = "200", description = "successfully found"),
@@ -46,7 +45,6 @@ public class TraineeController {
             @ApiResponse(responseCode = "404", description = "trainee with this username doesnt exist")
     })
     public ResponseEntity<?> getTraineeByUsername(@Parameter(description = "trainee's username") @RequestParam(name = "username") String username, HttpServletRequest request) {
-        authHandler.handle(request);
         return ResponseEntity.ok(traineeService.findByUsername(username));
     }
 
@@ -59,9 +57,8 @@ public class TraineeController {
             @ApiResponse(responseCode = "403", description = "not allowed to modify another user's profile"),
             @ApiResponse(responseCode = "404", description = "trainee with this username doesnt exist")
     })
-    public ResponseEntity<?> updateTraineeByUsername(@Valid @RequestBody UpdateTraineeDto traineeDto, HttpServletRequest request) {
-        String username= authHandler.handle(request);
-        return ResponseEntity.ok(traineeService.updateTrainee(traineeDto, username));
+    public ResponseEntity<?> updateTraineeByUsername(@Valid @RequestBody UpdateTraineeDto traineeDto, Principal principal) {
+        return ResponseEntity.ok(traineeService.updateTrainee(traineeDto, principal.getName()));
     }
 
     @DeleteMapping
@@ -72,9 +69,8 @@ public class TraineeController {
             @ApiResponse(responseCode = "403", description = "not allowed to delete another user's profile"),
             @ApiResponse(responseCode = "404", description = "trainee with this username doesnt exist")
     })
-    public ResponseEntity<Void> deleteTraineeByUsername(@Parameter(description = "trainee's username") @RequestParam(name = "username") String username, HttpServletRequest request) {
-        String authUsername=  authHandler.handle(request);
-        traineeService.deleteTraineeByUsername(username, authUsername);
+    public ResponseEntity<Void> deleteTraineeByUsername(@Parameter(description = "trainee's username") @RequestParam(name = "username") String username, Principal principal) {
+        traineeService.deleteTraineeByUsername(username, principal.getName());
         return ResponseEntity.ok().build();
     }
 
@@ -87,9 +83,8 @@ public class TraineeController {
             @ApiResponse(responseCode = "401", description = "authentication failed"),
             @ApiResponse(responseCode = "404", description = "trainee with this username doesnt exist")
     })
-    public ResponseEntity<?> changeStatus(@Valid @RequestBody ChangeStatusDto trainer, HttpServletRequest req) {
-        String authUsername = authHandler.handle(req);
-        traineeService.changeStatusTrainer(trainer, authUsername);
+    public ResponseEntity<?> changeStatus(@Valid @RequestBody ChangeStatusDto trainer,  Principal principal) {
+        traineeService.changeStatusTrainer(trainer, principal.getName());
         return ResponseEntity.ok().build();
     }
 
@@ -101,7 +96,6 @@ public class TraineeController {
             @ApiResponse(responseCode = "404", description = "trainee with this username doesnt exist")
     })
     public ResponseEntity<?> getTrainersNotAssignedByTraineeByUsername(@Parameter(description = "trainee's username") @RequestParam(name = "username") String username, HttpServletRequest request) {
-        authHandler.handle(request);
         return ResponseEntity.ok(traineeService.findNotAssignedTrainersByUsername(username));
     }
 
@@ -114,9 +108,8 @@ public class TraineeController {
             @ApiResponse(responseCode = "403", description = "not allowed to modify another user's trainer list"),
             @ApiResponse(responseCode = "404", description = "trainee or one of the trainers doesnt exist")
     })
-    public ResponseEntity<?> updateTraineeTrainers(@Valid @RequestBody UpdateTraineeTrainersDto trainerDto, HttpServletRequest request) {
-        String authUsername = authHandler.handle(request);
-        return ResponseEntity.ok(traineeService.updateTrainersByUsername(trainerDto, authUsername));
+    public ResponseEntity<?> updateTraineeTrainers(@Valid @RequestBody UpdateTraineeTrainersDto trainerDto, Principal principal) {
+        return ResponseEntity.ok(traineeService.updateTrainersByUsername(trainerDto, principal.getName()));
     }
 
     @GetMapping("trainings")
@@ -127,7 +120,6 @@ public class TraineeController {
             @ApiResponse(responseCode = "401", description = "authentication failed")
     })
     public ResponseEntity<?> getTraineeTrainings(@Valid @RequestBody TraineeTrainingsDto traineeTrainingsDto, HttpServletRequest request) {
-        authHandler.handle(request);
         return ResponseEntity.ok(traineeService.getTrainingsByCriteria(traineeTrainingsDto));
     }
 

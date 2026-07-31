@@ -28,6 +28,12 @@ spring:
   profiles:
     active: dev
 
+  security:
+    jwt:
+      secret-key: "jnfjnasjldnjlasooufsadjfjkansdf21)84%$3#@"
+      access-token-expiration: 900000
+
+
 management:
   endpoints:
     enabled-by-default: true

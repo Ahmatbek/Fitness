@@ -21,4 +21,6 @@ public interface ErrorResponseService {
 //    ErrorResponseBody makeResponse(AuthorizationException validationException);
 
     <T extends RuntimeException> ErrorResponseBody makeResponse(T validationException);
+
+    <T extends Exception> ErrorResponseBody makeResponse(T exception);
 }

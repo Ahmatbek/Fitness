@@ -54,4 +54,17 @@ public class ErrorResponseServiceImpl implements ErrorResponseService {
                 .build();
 
     }
+
+    @Override
+    public <T extends Exception> ErrorResponseBody makeResponse(T exception) {
+        String mess = Optional.ofNullable(exception.getMessage())
+                .orElse("authorization exception occurred");
+
+        return ErrorResponseBody.builder()
+                .title(exception.getClass().getSimpleName())
+                .details(Map.of("errors", List.of(mess)))
+                .build();
+
+
+    }
 }

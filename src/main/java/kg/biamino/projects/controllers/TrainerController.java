@@ -7,11 +7,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.service.TrainerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("trainers")
@@ -19,11 +20,9 @@ import org.springframework.web.bind.annotation.*;
 public class TrainerController{
 
     private final TrainerService trainerService;
-    private final AuthHandler authHandler;
 
-    public TrainerController(TrainerService trainerService, AuthHandler authHandler) {
+    public TrainerController(TrainerService trainerService) {
         this.trainerService = trainerService;
-        this.authHandler = authHandler;
     }
 
     @PostMapping
@@ -45,7 +44,6 @@ public class TrainerController{
             @ApiResponse(responseCode = "404", description = "trainer with this username doesnt exist")
     })
     public ResponseEntity<?> findByUsername(@Parameter(description = "trainer's username") @RequestParam(name="username") String username, HttpServletRequest req) {
-        authHandler.handle(req);
         return ResponseEntity.ok(trainerService.findByUsername(username));
     }
 
@@ -58,9 +56,8 @@ public class TrainerController{
             @ApiResponse(responseCode = "403", description = "not allowed to modify another user's profile"),
             @ApiResponse(responseCode = "404", description = "trainer with this username doesnt exist")
     })
-    public ResponseEntity<?> updateTrainer(@Valid @RequestBody UpdateTrainerDto trainer, HttpServletRequest req) {
-        String authUsername = authHandler.handle(req);
-        return ResponseEntity.ok(trainerService.updateTrainer(trainer, authUsername));
+    public ResponseEntity<?> updateTrainer(@Valid @RequestBody UpdateTrainerDto trainer, Principal principal) {
+        return ResponseEntity.ok(trainerService.updateTrainer(trainer, principal.getName()));
     }
 
     @PatchMapping
@@ -71,9 +68,8 @@ public class TrainerController{
             @ApiResponse(responseCode = "401", description = "authentication failed"),
             @ApiResponse(responseCode = "404", description = "trainer with this username doesnt exist")
     })
-    public ResponseEntity<?> changeStatus(@Valid @RequestBody ChangeStatusDto trainer, HttpServletRequest req) {
-        String authUsername = authHandler.handle(req);
-        trainerService.changeStatusTrainer(trainer, authUsername);
+    public ResponseEntity<?> changeStatus(@Valid @RequestBody ChangeStatusDto trainer, Principal principal) {
+        trainerService.changeStatusTrainer(trainer, principal.getName());
         return ResponseEntity.ok().build();
     }
 
@@ -85,7 +81,6 @@ public class TrainerController{
             @ApiResponse(responseCode = "401", description = "authentication failed")
     })
     public ResponseEntity<?> getTraineeTrainings(@Valid @RequestBody TrainerTrainingsDto traineeTrainingsDto, HttpServletRequest request) {
-        authHandler.handle(request);
         return ResponseEntity.ok(trainerService.getTrainingsByCriteria(traineeTrainingsDto));
     }
 }

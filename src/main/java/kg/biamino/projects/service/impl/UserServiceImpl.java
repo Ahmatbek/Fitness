@@ -12,6 +12,8 @@ import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     private final SecureRandom random = new SecureRandom();
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     public void setUserDao(UserRepository userRepository) {
@@ -46,6 +49,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User createUser(UserDto user) {
+        String password = generateThePassword();
 
         nullChecker(user, "user");
         stringChecker(user.getFirstName(), "userDto");
@@ -54,7 +58,7 @@ public class UserServiceImpl implements UserService {
         user1.setFirstName(user.getFirstName());
         user1.setLastName(user.getLastName());
         user1.setUsername(generateUsername(user.getFirstName(), user.getLastName()));
-        user1.setPassword(generateThePassword());
+        user1.setPassword(passwordEncoder.encode(password));
         user1.setIsActive(true);
         log.info("Created user {}", user1);
         return userRepository.save(user1);

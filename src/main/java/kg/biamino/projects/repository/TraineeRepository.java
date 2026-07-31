@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface TraineeRepository extends JpaRepository<Trainee, Long> {
      @Query(value = """
                Select t.* from trainees t
-               join trainee_traineer tt on tt.trainee_id=t.id
+               left join trainee_traineer tt on tt.trainee_id=t.id
                join users u on u.id = t.user_id
                where t.user_id = :id
 """, nativeQuery = true)

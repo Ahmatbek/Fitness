@@ -2,7 +2,6 @@ package kg.biamino.projects.service.impl;
 
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.exception.DateInvalidException;
@@ -144,7 +143,6 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public void changeStatusTrainer(ChangeStatusDto changeStatusDto, String authUsername) {
-        AuthHandler.checkAuthorization(changeStatusDto.getUsername(), authUsername);
         User user = userService.findUserByUsername(authUsername);
         traineeRepository.findTraineeByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("User doesnt have trainee profile"));
         userService.changeStatus(user, changeStatusDto.getIsActive());
@@ -205,7 +203,6 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @Transactional
     public void deleteTraineeByUsername(String username, String authUsername) {
-        AuthHandler.checkAuthorization(username, authUsername);
         User user  = userService.findUserByUsername(username);
         Trainee trainee = traineeRepository.findTraineeByUserId(user.getId()).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
         traineeRepository.deleteById(trainee.getId());
@@ -228,7 +225,6 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @Transactional
     public List<TrainerUsernameDto> updateTrainersByUsername(UpdateTraineeTrainersDto updateTraineeTrainersDto, String username) {
-        AuthHandler.checkAuthorization(updateTraineeTrainersDto.getUsername(), username);
         Trainee trainee = traineeRepository.findTraineeByUserUsername(username).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
         List<Trainer> trainers = trainee.getTrainers();
         List<String> usernames = updateTraineeTrainersDto.getTrainers();
