@@ -30,14 +30,14 @@ import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 @Timed(value = "users", description = "amount of time each method executes")
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
-
+    private final UserRepository userRepository;
+    private final PasswordEncoder bCryptPasswordEncoder;
     private final SecureRandom random = new SecureRandom();
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
-    public void setUserDao(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
         user1.setFirstName(user.getFirstName());
         user1.setLastName(user.getLastName());
         user1.setUsername(generateUsername(user.getFirstName(), user.getLastName()));
-        user1.setPassword(passwordEncoder.encode(password));
+        user1.setPassword(bCryptPasswordEncoder.encode(password));
         user1.setIsActive(true);
         log.info("Created user {}", user1);
         return userRepository.save(user1);
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public void userAuthenticated(String username, String password) {
         User user = findUserByUsername(username);
-        if (!user.getPassword().equals(password)) throw new AuthenticationException("Passwords do not match or username doesnt exist");
+        if(!bCryptPasswordEncoder.matches(password, user.getPassword())) throw new AuthenticationException("Invalid password");
 
     }
 

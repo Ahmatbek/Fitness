@@ -5,7 +5,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import kg.biamino.projects.config.JwtLogoutTokens;
+import kg.biamino.projects.config.JwtUtil;
 import kg.biamino.projects.dto.ChangePasswordDto;
 import kg.biamino.projects.dto.LoginRequestDto;
 import kg.biamino.projects.dto.TokenResponseDto;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,9 +27,13 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
-    public AuthController( UserService userService, AuthService authService) {
+    private final JwtLogoutTokens jwtLogoutTokens;
+    private final JwtUtil jwtUtil;
+    public AuthController( UserService userService, AuthService authService, JwtLogoutTokens jwtLogoutTokens, JwtUtil jwtUtil) {
         this.userService = userService;
         this.authService = authService;
+        this.jwtLogoutTokens = jwtLogoutTokens;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
@@ -48,6 +56,17 @@ public class AuthController {
     })
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDto changePasswordDto, Principal principal) {
         userService.changePassword(changePasswordDto, principal.getName());
+        return ResponseEntity.ok().build();
+    }
+
+
+    @PostMapping("logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        String token = header.substring("Bearer ".length());
+        String jtiId = jwtUtil.extractIdToken(token);
+        Date expiration = jwtUtil.extractExpiration(token);
+        jwtLogoutTokens.invalidate(jtiId,expiration.toInstant());
         return ResponseEntity.ok().build();
     }
 

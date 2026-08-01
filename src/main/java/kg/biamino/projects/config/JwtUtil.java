@@ -10,10 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.io.Serializable;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Component
@@ -62,6 +59,7 @@ public class JwtUtil implements Serializable {
     public String buildToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
+                .setId(UUID.randomUUID().toString())
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+accessTokenExpiration))
@@ -78,6 +76,10 @@ public class JwtUtil implements Serializable {
 
     public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
+    }
+
+    public String extractIdToken(String token) {
+        return extractClaim(token, Claims::getId);
     }
 
 }
