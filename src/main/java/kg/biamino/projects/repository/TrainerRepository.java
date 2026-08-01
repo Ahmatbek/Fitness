@@ -13,6 +13,8 @@ public interface TrainerRepository extends JpaRepository<Trainer, Long> {
 
     Optional<Trainer> findByUserId(Long id);
 
+    Optional<Trainer> findByUserUsername(String username);
+
     @Query(value = """
 SELECT tr.* 
 FROM trainee_traineer tt

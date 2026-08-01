@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.service.TrainingService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,7 +32,8 @@ public class TrainingController {
             @ApiResponse(responseCode = "401", description = "authentication failed"),
             @ApiResponse(responseCode = "404", description = "trainee, trainer or training type doesnt exist")
     })
-    public ResponseEntity<?> createTraining(@Valid @RequestBody TrainingDto trainingDto, HttpServletRequest request) {
+    @PreAuthorize("@authHandler.isOwner(#trainingDto.trainerUsername) and hasAuthority('TRAINER')")
+    public ResponseEntity<?> createTraining(@Valid @RequestBody TrainingDto trainingDto) {
         trainingService.createTraining(trainingDto);
         return ResponseEntity.ok().build();
     }
