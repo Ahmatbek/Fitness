@@ -65,4 +65,8 @@ public class GlobalExceptionHandler  {
         return new ResponseEntity<>(errorResponseService.makeResponse(e), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ErrorResponseBody> badCredentialsException(BadCredentialsException e) {
+        return new ResponseEntity<>(errorResponseService.makeResponse(e), HttpStatus.UNAUTHORIZED);
+    }
 }

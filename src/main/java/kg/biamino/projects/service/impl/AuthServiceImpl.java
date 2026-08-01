@@ -1,25 +1,45 @@
 package kg.biamino.projects.service.impl;
 
+import kg.biamino.projects.config.BruteForceProtectionService;
 import kg.biamino.projects.config.JwtUtil;
 import kg.biamino.projects.dto.LoginRequestDto;
 import kg.biamino.projects.dto.TokenResponseDto;
+import kg.biamino.projects.model.User;
+import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.AuthService;
 import kg.biamino.projects.service.UserService;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final BruteForceProtectionService bruteForceProtectionService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthServiceImpl(UserService userService, JwtUtil jwtUtil) {
+    public AuthServiceImpl(UserService userService, JwtUtil jwtUtil, BruteForceProtectionService bruteForceProtectionService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.bruteForceProtectionService = bruteForceProtectionService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public TokenResponseDto login(LoginRequestDto loginRequestDto) {
-        userService.userAuthenticated(loginRequestDto.username(), loginRequestDto.password());
+        if (bruteForceProtectionService.isBlocked(loginRequestDto.username())) {
+            throw new BadCredentialsException("You have been temporarily locked due to too many failed login attempts.");
+        }
+        User user = userRepository.findUserByUsername(loginRequestDto.username()).orElseThrow(()-> new BadCredentialsException("Username not found."));
+
+        if (!passwordEncoder.matches(loginRequestDto.password(), user.getPassword())) {
+            bruteForceProtectionService.loginFailed(loginRequestDto.username());
+            throw new BadCredentialsException("Invalid username or password.");
+        }
+        bruteForceProtectionService.loginSucceeded(loginRequestDto.username());
         return new TokenResponseDto(jwtUtil.generateToken(loginRequestDto.username()));
 
     }
