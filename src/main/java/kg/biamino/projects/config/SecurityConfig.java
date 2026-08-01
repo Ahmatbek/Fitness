@@ -3,6 +3,7 @@ package kg.biamino.projects.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,7 +33,12 @@ public class SecurityConfig {
                  .csrf(AbstractHttpConfigurer::disable)
                  .authorizeHttpRequests(request ->
                          request.requestMatchers("/auth/login", "/auth/logout").permitAll()
+                                 .requestMatchers(HttpMethod.POST, "trainees").permitAll()
+                                 .requestMatchers(HttpMethod.POST, "trainers").permitAll()
+                                 .requestMatchers("trainees").hasAuthority("TRAINEE")
+                                 .requestMatchers("trainers").hasAuthority("TRAINER")
                                  .anyRequest().authenticated()
+
                  )
                  .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                  .logout(form-> form

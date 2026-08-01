@@ -1,6 +1,7 @@
 package kg.biamino.projects.service;
 
 import kg.biamino.projects.dto.ChangePasswordDto;
+import kg.biamino.projects.dto.NewUserCredentials;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.records.ProfilePasswordChange;
@@ -11,7 +12,7 @@ import java.util.List;
 public interface UserService {
     List<User> getAllUsers();
 
-    User createUser(UserDto user);
+    NewUserCredentials createUser(UserDto user);
 
     @Transactional
     User updateUser(String username, UserDto userDto, boolean status);

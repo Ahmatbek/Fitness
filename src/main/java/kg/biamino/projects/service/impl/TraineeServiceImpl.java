@@ -72,20 +72,21 @@ public class TraineeServiceImpl implements TraineeService {
         nullChecker(traineeDto, "traineeDto");
         dateValidation(traineeDto.getDateOfBirth());
         log.info("Creating trainee: {}", traineeDto);
-        User user = userService.createUser(traineeDto);
+        NewUserCredentials newUserCredentials = userService.createUser(traineeDto);
 
 
         Trainee trainee = new Trainee();
         trainee.setAddress(traineeDto.getAddress());
         trainee.setDateOfBirth(traineeDto.getDateOfBirth());
-        trainee.setUser(user);
+        trainee.setUser(newUserCredentials.user());
 
+        log.info("Created trainee: {}",trainee);
 
         traineeRepository.save(trainee);
 
         return UserCredentialsDto.builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
+                .username(newUserCredentials.user().getUsername())
+                .password(newUserCredentials.password())
                 .build();
 
     }

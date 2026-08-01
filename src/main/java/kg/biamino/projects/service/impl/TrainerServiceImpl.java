@@ -76,19 +76,19 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional
     public UserCredentialsDto createTrainer(TrainerDto trainerDto) {
         nullChecker(trainerDto, "trainerDto");
-        User user = userService.createUser(trainerDto);
+        NewUserCredentials newUserCredentials = userService.createUser(trainerDto);
 
         Trainer trainer = new Trainer();
         trainer.setSpecialization(trainingTypeService.findByName(trainerDto.getSpecialization()));
-        trainer.setUser(user);
+        trainer.setUser(newUserCredentials.user());
 
         trainerRepository.save(trainer);
-        log.info("Creating trainer with id {}", user.getId());
+        log.info("Creating trainer with id {}", newUserCredentials.user().getId());
 
 
         return UserCredentialsDto.builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
+                .username(newUserCredentials.user().getUsername())
+                .password(newUserCredentials.password())
                 .build();
     }
 

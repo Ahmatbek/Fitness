@@ -3,6 +3,8 @@ package kg.biamino.projects.service.impl;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import kg.biamino.projects.dto.ChangePasswordDto;
+import kg.biamino.projects.dto.NewUserCredentials;
+import kg.biamino.projects.dto.UserCredentialsDto;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.exception.AuthenticationException;
 import kg.biamino.projects.exception.AuthorizationException;
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(UserDto user) {
+    public NewUserCredentials createUser(UserDto user) {
         String password = generateThePassword();
 
         nullChecker(user, "user");
@@ -61,7 +63,9 @@ public class UserServiceImpl implements UserService {
         user1.setPassword(bCryptPasswordEncoder.encode(password));
         user1.setIsActive(true);
         log.info("Created user {}", user1);
-        return userRepository.save(user1);
+        userRepository.save(user1);
+
+       return new NewUserCredentials(user1, password);
     }
 
     private String generateThePassword() {

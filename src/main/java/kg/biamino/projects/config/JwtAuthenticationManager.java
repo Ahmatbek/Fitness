@@ -1,15 +1,12 @@
 package kg.biamino.projects.config;
 
-import kg.biamino.projects.model.AppUserDetails;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import java.security.SignatureException;
 
 @Component
 public class JwtAuthenticationManager implements AuthenticationManager {
