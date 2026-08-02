@@ -231,6 +231,16 @@ class TrainerServiceTest {
     }
 
     @Test
+    void changeStatusTrainer_authorizationMismatch_throwsAuthorizationException() {
+        ChangeStatusDto dto = new ChangeStatusDto();
+        dto.setUsername("Someone.Else");
+        dto.setIsActive(false);
+
+        assertThrows(AuthorizationException.class, () -> trainerService.changeStatusTrainer(dto, "Aidana.Toktosunova"));
+        verifyNoInteractions(userService);
+    }
+
+    @Test
     void changeStatusTrainer_trainerProfileMissing_throwsNoSuchElementException() {
         ChangeStatusDto dto = new ChangeStatusDto();
         dto.setUsername("Aidana.Toktosunova");

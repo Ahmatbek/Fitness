@@ -4,7 +4,6 @@ import kg.biamino.projects.dto.ChangePasswordDto;
 import kg.biamino.projects.dto.NewUserCredentials;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.model.User;
-import kg.biamino.projects.records.ProfilePasswordChange;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

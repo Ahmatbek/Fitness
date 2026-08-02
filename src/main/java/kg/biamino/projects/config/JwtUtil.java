@@ -15,8 +15,6 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil implements Serializable {
-    private static final String TOKEN_TYPE="token-type";
-    private static final String ACCESS_TOKEN = "access_token";
 
     @Value("${spring.security.jwt.secret-key}")
     private String secretKey;

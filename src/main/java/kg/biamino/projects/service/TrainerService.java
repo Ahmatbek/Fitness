@@ -3,8 +3,6 @@ package kg.biamino.projects.service;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
-import kg.biamino.projects.records.ProfilePasswordChange;
-import kg.biamino.projects.records.TrainerCriteriaDto;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

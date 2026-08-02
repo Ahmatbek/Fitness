@@ -144,6 +144,9 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public void changeStatusTrainer(ChangeStatusDto changeStatusDto, String authUsername) {
+        if (!changeStatusDto.getUsername().equals(authUsername)) {
+            throw new AuthorizationException("You dont have access to change others accounts");
+        }
         User user = userService.findUserByUsername(authUsername);
         traineeRepository.findTraineeByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("User doesnt have trainee profile"));
         userService.changeStatus(user, changeStatusDto.getIsActive());
@@ -204,6 +207,9 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @Transactional
     public void deleteTraineeByUsername(String username, String authUsername) {
+        if (!username.equals(authUsername)) {
+            throw new AuthorizationException("You dont have access to delete others accounts");
+        }
         User user  = userService.findUserByUsername(username);
         Trainee trainee = traineeRepository.findTraineeByUserId(user.getId()).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
         traineeRepository.deleteById(trainee.getId());
@@ -226,6 +232,9 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @Transactional
     public List<TrainerUsernameDto> updateTrainersByUsername(UpdateTraineeTrainersDto updateTraineeTrainersDto, String username) {
+        if (!updateTraineeTrainersDto.getUsername().equals(username)) {
+            throw new AuthorizationException("You dont have access to change others accounts");
+        }
         Trainee trainee = traineeRepository.findTraineeByUserUsername(username).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
         List<Trainer> trainers = trainee.getTrainers();
         List<String> usernames = updateTraineeTrainersDto.getTrainers();

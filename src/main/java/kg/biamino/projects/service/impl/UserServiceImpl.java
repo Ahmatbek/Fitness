@@ -148,6 +148,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void changePassword(ChangePasswordDto changePasswordDto, String authUsername) {
+        stringChecker(changePasswordDto.newPassword(), "newPassword");
         userAuthenticated(changePasswordDto.username(), changePasswordDto.oldPassword());
         User user = findUserByUsername(changePasswordDto.username());
         if(!user.getUsername().equals(authUsername)) {

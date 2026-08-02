@@ -211,7 +211,7 @@ class UserServiceTest {
 
     @Test
     void userAuthenticated_correctPassword_doesNotThrow() {
-        User user = existingUser("Nurlan.Bekov", "secret", true);
+        User user = existingUser("Nurlan.Bekov", passwordEncoder.encode("secret"), true);
         when(userRepository.findUserByUsername("Nurlan.Bekov")).thenReturn(Optional.of(user));
 
         assertDoesNotThrow(() -> userService.userAuthenticated("Nurlan.Bekov", "secret"));
@@ -219,7 +219,7 @@ class UserServiceTest {
 
     @Test
     void userAuthenticated_wrongPassword_throwsAuthenticationException() {
-        User user = existingUser("Nurlan.Bekov", "secret", true);
+        User user = existingUser("Nurlan.Bekov", passwordEncoder.encode("secret"), true);
         when(userRepository.findUserByUsername("Nurlan.Bekov")).thenReturn(Optional.of(user));
 
         assertThrows(AuthenticationException.class, () -> userService.userAuthenticated("Nurlan.Bekov", "wrong"));
@@ -246,19 +246,19 @@ class UserServiceTest {
 
     @Test
     void changePasswordDto_success_updatesPassword() {
-        User user = existingUser("Nurlan.Bekov", "OldPass1", true);
+        User user = existingUser("Nurlan.Bekov", passwordEncoder.encode("OldPass1"), true);
         when(userRepository.findUserByUsername("Nurlan.Bekov")).thenReturn(Optional.of(user));
         ChangePasswordDto dto = new ChangePasswordDto("Nurlan.Bekov", "OldPass1", "NewPass1");
 
         userService.changePassword(dto, "Nurlan.Bekov");
 
-        assertEquals("NewPass1", user.getPassword());
+        assertTrue(passwordEncoder.matches("NewPass1", user.getPassword()));
         verify(userRepository).save(user);
     }
 
     @Test
     void changePasswordDto_authUsernameMismatch_throwsAuthorizationException() {
-        User user = existingUser("Nurlan.Bekov", "OldPass1", true);
+        User user = existingUser("Nurlan.Bekov", passwordEncoder.encode("OldPass1"), true);
         when(userRepository.findUserByUsername("Nurlan.Bekov")).thenReturn(Optional.of(user));
         ChangePasswordDto dto = new ChangePasswordDto("Nurlan.Bekov", "OldPass1", "NewPass1");
 
@@ -268,7 +268,7 @@ class UserServiceTest {
 
     @Test
     void changePasswordDto_wrongOldPassword_throwsAuthenticationException() {
-        User user = existingUser("Nurlan.Bekov", "OldPass1", true);
+        User user = existingUser("Nurlan.Bekov", passwordEncoder.encode("OldPass1"), true);
         when(userRepository.findUserByUsername("Nurlan.Bekov")).thenReturn(Optional.of(user));
         ChangePasswordDto dto = new ChangePasswordDto("Nurlan.Bekov", "WrongPass", "NewPass1");
 

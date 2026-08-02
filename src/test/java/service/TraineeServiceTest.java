@@ -107,7 +107,7 @@ class TraineeServiceTest {
         UserCredentialsDto result = traineeService.createTrainee(dto);
 
         assertEquals("Nurlan.Bekov", result.getUsername());
-        assertEquals("pass123", result.getPassword());
+        assertEquals("password", result.getPassword());
         verify(traineeRepository).save(any(Trainee.class));
     }
 

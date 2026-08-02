@@ -4,6 +4,7 @@ import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import jakarta.persistence.criteria.Predicate;
 import kg.biamino.projects.dto.*;
+import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
@@ -96,6 +97,9 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional
     public TrainerTraineesListDto updateTrainer(UpdateTrainerDto trainerDto, String authUsername){
         log.info("Updating trainer with username {}", authUsername);
+        if (!trainerDto.getUsername().equals(authUsername)) {
+            throw new AuthorizationException("You dont have access to change others accounts");
+        }
 
         User user1 = userService.updateUser(authUsername, trainerDto, trainerDto.getIsActive());
         Trainer trainer = trainerRepository.findByUserId(user1.getId()).orElseThrow(()-> new NoSuchElementException("Trainer with id " + user1.getId() + " not found"));
@@ -135,6 +139,9 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     @Transactional
     public void changeStatusTrainer(ChangeStatusDto changeStatusDto, String authUsername) {
+        if (!changeStatusDto.getUsername().equals(authUsername)) {
+            throw new AuthorizationException("You dont have access to change others accounts");
+        }
         User user = userService.findUserByUsername(authUsername);
         trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("Trainer not found with userId" + user.getId()));
         userService.changeStatus(user, changeStatusDto.getIsActive());
