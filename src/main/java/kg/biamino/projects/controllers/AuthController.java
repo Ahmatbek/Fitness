@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kg.biamino.projects.config.JwtLogoutTokens;
 import kg.biamino.projects.config.JwtUtil;
@@ -63,9 +62,15 @@ public class AuthController {
     @PostMapping("logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
+        if(header==null || !header.startsWith("Bearer ")) {
+            return ResponseEntity.ok().build();
+        }
         String token = header.substring("Bearer ".length());
         String jtiId = jwtUtil.extractIdToken(token);
         Date expiration = jwtUtil.extractExpiration(token);
+        if(jtiId == null || expiration == null) {
+            return ResponseEntity.badRequest().build();
+        }
         jwtLogoutTokens.invalidate(jtiId,expiration.toInstant());
         return ResponseEntity.ok().build();
     }

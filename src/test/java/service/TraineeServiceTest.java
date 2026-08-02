@@ -1,15 +1,7 @@
 package service;
 
 import jakarta.persistence.criteria.Predicate;
-import kg.biamino.projects.dto.ChangeStatusDto;
-import kg.biamino.projects.dto.TraineeDto;
-import kg.biamino.projects.dto.TraineeTrainersListDto;
-import kg.biamino.projects.dto.TraineeTrainingsDto;
-import kg.biamino.projects.dto.TrainerUsernameDto;
-import kg.biamino.projects.dto.TrainingsDisplayInfoTrainee;
-import kg.biamino.projects.dto.UpdateTraineeDto;
-import kg.biamino.projects.dto.UpdateTraineeTrainersDto;
-import kg.biamino.projects.dto.UserCredentialsDto;
+import kg.biamino.projects.dto.*;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.exception.DateInvalidException;
 import kg.biamino.projects.model.Trainee;
@@ -28,6 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -51,10 +45,12 @@ class TraineeServiceTest {
     @Mock
     private UserService userService;
 
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private TraineeServiceImpl traineeService;
 
     private User user;
     private Trainee trainee;
+    private NewUserCredentials credentials;
 
     @BeforeEach
     void setUp() {
@@ -68,7 +64,7 @@ class TraineeServiceTest {
         user.setUsername("Nurlan.Bekov");
         user.setFirstName("Nurlan");
         user.setLastName("Bekov");
-        user.setPassword("pass123");
+        user.setPassword(passwordEncoder.encode("password"));
         user.setIsActive(true);
 
         trainee = new Trainee();
@@ -77,6 +73,9 @@ class TraineeServiceTest {
         trainee.setAddress("Bishkek");
         trainee.setDateOfBirth(LocalDate.of(2000, 1, 1));
         trainee.setTrainers(new ArrayList<>());
+
+        credentials=new NewUserCredentials(user,"password");
+
     }
 
     @Test
@@ -102,7 +101,7 @@ class TraineeServiceTest {
         dto.setLastName("Bekov");
         dto.setAddress("Bishkek");
         dto.setDateOfBirth(LocalDate.of(2000, 1, 1));
-        when(userService.createUser(dto)).thenReturn(user);
+        when(userService.createUser(dto)).thenReturn(credentials);
         when(traineeRepository.save(any(Trainee.class))).thenAnswer(inv -> inv.getArgument(0));
 
         UserCredentialsDto result = traineeService.createTrainee(dto);

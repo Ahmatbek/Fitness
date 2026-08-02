@@ -25,6 +25,11 @@ spring:
     change-log: classpath:db/changelog/master-prod.yaml
     enabled: true
 
+  security:
+    jwt:
+      secret-key: "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c"
+      access-token-expiration: 900000
+
 management:
   endpoints:
     enabled-by-default: true
@@ -37,4 +42,7 @@ management:
   metrics:
     tags:
       application: backend
+
+application:
+  domain: ${MY_DOMAIN}
 

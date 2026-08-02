@@ -23,8 +23,6 @@ public interface UserService {
 
     void userAuthenticated(String username, String password);
 
-    void changePassword(User user, String newPassword);
-
     void changePassword(ChangePasswordDto changePasswordDto, String authUsername);
 
     @Transactional

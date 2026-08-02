@@ -32,3 +32,6 @@ management:
   metrics:
     tags:
       application: backend
+
+application:
+  domain: ${MY_DOMAIN}

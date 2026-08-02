@@ -1,5 +1,6 @@
 package kg.biamino.projects.service.impl;
 
+import kg.biamino.projects.exception.UserInactiveException;
 import kg.biamino.projects.model.AppUserDetails;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.repository.TraineeRepository;
@@ -22,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
 
-    public UserDetailsServiceImpl(final UserRepository userRepository, final TraineeRepository traineeRepository, final TrainerRepository trainerRepository) {
+    public UserDetailsServiceImpl(UserRepository userRepository,  TraineeRepository traineeRepository, TrainerRepository trainerRepository) {
         this.userRepository = userRepository;
         this.traineeRepository = traineeRepository;
         this.trainerRepository = trainerRepository;
@@ -31,6 +32,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        if(user.getIsActive().equals(Boolean.FALSE)) {
+            throw new UserInactiveException("user is inactive");
+        }
         String role=null;
         if(traineeRepository.findTraineeByUserId(user.getId()).isPresent()){
             role="TRAINEE";

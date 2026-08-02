@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -144,24 +145,16 @@ public class UserServiceImpl implements UserService {
         if(!bCryptPasswordEncoder.matches(password, user.getPassword())) throw new AuthenticationException("Invalid password");
 
     }
-
-    @Override
-    @Transactional
-    public void changePassword(User user, String newPassword) {
-        stringChecker(newPassword, "newPassword");
-        user.setPassword(newPassword);
-        userRepository.save(user);
-    }
-
     @Override
     @Transactional
     public void changePassword(ChangePasswordDto changePasswordDto, String authUsername) {
         userAuthenticated(changePasswordDto.username(), changePasswordDto.oldPassword());
         User user = findUserByUsername(changePasswordDto.username());
         if(!user.getUsername().equals(authUsername)) {
-            throw new AuthorizationException("Authenticated User doesnt have permissions change other users");
+            throw new AuthorizationException("User cannot change other's password");
         }
-        user.setPassword(changePasswordDto.newPassword());
+
+        user.setPassword(bCryptPasswordEncoder.encode(changePasswordDto.newPassword()));
         userRepository.save(user);
 
     }

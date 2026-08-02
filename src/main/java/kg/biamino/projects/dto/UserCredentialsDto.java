@@ -10,7 +10,6 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 @Setter
 @Builder
-//@Jacksonized
 public class UserCredentialsDto {
     @NotBlank(message = "username can't be blank")
     String username;

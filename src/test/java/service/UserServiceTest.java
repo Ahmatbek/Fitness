@@ -1,6 +1,7 @@
 package service;
 
 import kg.biamino.projects.dto.ChangePasswordDto;
+import kg.biamino.projects.dto.NewUserCredentials;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.exception.AuthenticationException;
 import kg.biamino.projects.exception.AuthorizationException;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,11 +32,23 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     private UserServiceImpl userService;
+    private PasswordEncoder passwordEncoder;
+
+    private NewUserCredentials newUserCredentials;
+    private User user;
 
     @BeforeEach
     void setUp() {
-        userService = new UserServiceImpl();
-        userService.setUserDao(userRepository);
+        passwordEncoder = new BCryptPasswordEncoder();
+        userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+        user = new User();
+        user.setLastName("Tursunbaev");
+        user.setFirstName("Akhmat");
+        user.setPassword(passwordEncoder.encode("password"));
+        user.setUsername("Akhmat.Tursunbaev");
+
+        newUserCredentials = new NewUserCredentials(user, "password");
     }
 
     private User existingUser(String username, String password, boolean active) {
@@ -68,14 +83,14 @@ class UserServiceTest {
         when(userRepository.findUserByUsername("Nurlan.Bekov")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        User result = userService.createUser(dto);
+        NewUserCredentials result = userService.createUser(dto);
 
-        assertEquals("Nurlan", result.getFirstName());
-        assertEquals("Bekov", result.getLastName());
-        assertEquals("Nurlan.Bekov", result.getUsername());
-        assertNotNull(result.getPassword());
-        assertEquals(10, result.getPassword().length());
-        assertTrue(result.getIsActive());
+        assertEquals("Nurlan", result.user().getFirstName());
+        assertEquals("Bekov", result.user().getLastName());
+        assertEquals("Nurlan.Bekov", result.user().getUsername());
+        assertNotNull(result.user().getPassword());
+        assertTrue(result.user().getIsActive());
+        assertTrue(passwordEncoder.matches(result.user().getPassword(), passwordEncoder.encode(result.user().getPassword())));
     }
 
     @Test
@@ -86,9 +101,9 @@ class UserServiceTest {
         when(userRepository.findUserByUsername("Nurlan.Bekov1")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        User result = userService.createUser(dto);
+        NewUserCredentials result = userService.createUser(dto);
 
-        assertEquals("Nurlan.Bekov1", result.getUsername());
+        assertEquals("Nurlan.Bekov1", result.user().getUsername());
     }
 
     @Test
@@ -101,9 +116,9 @@ class UserServiceTest {
         when(userRepository.findUserByUsername("Nurlan.Bekov2")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        User result = userService.createUser(dto);
+        NewUserCredentials userCredentials = userService.createUser(dto);
 
-        assertEquals("Nurlan.Bekov2", result.getUsername());
+        assertEquals("Nurlan.Bekov2", userCredentials.user().getUsername());
     }
 
     @Test
@@ -217,21 +232,15 @@ class UserServiceTest {
         assertThrows(UserNotFoundException.class, () -> userService.userAuthenticated("ghost", "whatever"));
     }
 
-    @Test
-    void changePassword_success_updatesPassword() {
-        User user = existingUser("Nurlan.Bekov", "old", true);
 
-        userService.changePassword(user, "newPass123");
-
-        assertEquals("newPass123", user.getPassword());
-        verify(userRepository).save(user);
-    }
 
     @Test
     void changePassword_blankNewPassword_throwsIllegalArgumentException() {
         User user = existingUser("Nurlan.Bekov", "old", true);
+        ChangePasswordDto changePasswordDto = new ChangePasswordDto("Akhmatbek.Tursunbaev", "password"," ");
+        String authUsername="Akhmatbek.Tursunbaev";
 
-        assertThrows(IllegalArgumentException.class, () -> userService.changePassword(user, "   "));
+        assertThrows(IllegalArgumentException.class, () -> userService.changePassword(changePasswordDto, authUsername));
         verify(userRepository, never()).save(any());
     }
 

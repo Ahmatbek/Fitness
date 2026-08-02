@@ -1,5 +1,6 @@
 package kg.biamino.projects.config;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@EnableScheduling
 public class JwtLogoutTokens {
     private final Map<String , Instant> invalid = new ConcurrentHashMap<>();
 
@@ -19,7 +21,7 @@ public class JwtLogoutTokens {
         return invalid.containsKey(jti);
     }
 
-    @Scheduled(cron = "0 0 */1 * * *")
+    @Scheduled(cron = "0 */15 * * * *")
     public void cleanUp(){
        invalid.values().removeIf(instant -> instant.isBefore(Instant.now()));
     }

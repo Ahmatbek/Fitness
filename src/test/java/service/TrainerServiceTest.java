@@ -1,14 +1,7 @@
 package service;
 
 import jakarta.persistence.criteria.Predicate;
-import kg.biamino.projects.dto.AuthUserDto;
-import kg.biamino.projects.dto.ChangeStatusDto;
-import kg.biamino.projects.dto.TrainerDto;
-import kg.biamino.projects.dto.TrainerTraineesListDto;
-import kg.biamino.projects.dto.TrainerTrainingsDto;
-import kg.biamino.projects.dto.TrainingsDisplayInfoTrainer;
-import kg.biamino.projects.dto.UpdateTrainerDto;
-import kg.biamino.projects.dto.UserCredentialsDto;
+import kg.biamino.projects.dto.*;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
@@ -27,6 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
@@ -53,14 +48,18 @@ class TrainerServiceTest {
     @Mock
     private UserService userService;
 
+    private PasswordEncoder passwordEncoder;
+
     private TrainerServiceImpl trainerService;
 
     private User user;
     private Trainer trainer;
     private Trainee trainee;
+    private NewUserCredentials newUserCredentials;
 
     @BeforeEach
     void setUp() {
+        passwordEncoder = new BCryptPasswordEncoder();
         trainerService = new TrainerServiceImpl(userService, trainingTypeService);
         trainerService.setTrainerDao(trainerRepository);
         trainerService.setTraineeRepository(traineeRepository);
@@ -71,7 +70,7 @@ class TrainerServiceTest {
         user.setUsername("Aidana.Toktosunova");
         user.setFirstName("Aidana");
         user.setLastName("Toktosunova");
-        user.setPassword("pass123");
+        user.setPassword(passwordEncoder.encode("password"));
         user.setIsActive(true);
 
         trainer = new Trainer();
@@ -83,6 +82,9 @@ class TrainerServiceTest {
         trainee = new Trainee();
         trainee.setId(10L);
         trainee.setTrainers(new ArrayList<>());
+
+        newUserCredentials = new NewUserCredentials(user, "password");
+
     }
 
     @Test
@@ -122,14 +124,14 @@ class TrainerServiceTest {
         dto.setLastName("Toktosunova");
         dto.setSpecialization("individual");
         TrainingType type = new TrainingType("individual");
-        when(userService.createUser(dto)).thenReturn(user);
+        when(userService.createUser(dto)).thenReturn(newUserCredentials);
         when(trainingTypeService.findByName("individual")).thenReturn(type);
         when(trainerRepository.save(any(Trainer.class))).thenAnswer(inv -> inv.getArgument(0));
 
         UserCredentialsDto result = trainerService.createTrainer(dto);
 
         assertEquals("Aidana.Toktosunova", result.getUsername());
-        assertEquals("pass123", result.getPassword());
+        assertTrue(passwordEncoder.matches(result.getPassword(), user.getPassword()));
         verify(trainerRepository).save(any(Trainer.class));
     }
 
