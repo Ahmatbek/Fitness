@@ -10,7 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.security.SignatureException;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice

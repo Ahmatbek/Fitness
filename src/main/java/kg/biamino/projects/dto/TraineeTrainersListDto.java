@@ -1,9 +1,15 @@
 package kg.biamino.projects.dto;
 
-import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.ToString;
 import java.time.LocalDate;
 import java.util.List;
 

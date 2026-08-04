@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
         if (bruteForceProtectionService.isBlocked(loginRequestDto.username())) {
             throw new BadCredentialsException("You have been temporarily locked due to too many failed login attempts.");
         }
-        if(user.getIsActive().equals(Boolean.FALSE)) {
+        if(Boolean.FALSE.equals(user.getIsActive())) {
             throw new UserInactiveException("user is inactive");
         }
 

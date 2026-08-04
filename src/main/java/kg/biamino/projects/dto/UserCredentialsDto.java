@@ -2,10 +2,13 @@ package kg.biamino.projects.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.jackson.Jacksonized;
 
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.Builder;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter

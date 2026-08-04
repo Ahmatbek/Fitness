@@ -21,11 +21,10 @@ class JwtUtilTest {
     private static final String SECRET_KEY = "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c";
     private static final long ACCESS_TOKEN_EXPIRATION = 900000;
 
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil = new JwtUtil();
 
     @BeforeEach
     void setUp() {
-        jwtUtil = new JwtUtil();
         ReflectionTestUtils.setField(jwtUtil, "secretKey", SECRET_KEY);
         ReflectionTestUtils.setField(jwtUtil, "accessTokenExpiration", ACCESS_TOKEN_EXPIRATION);
     }

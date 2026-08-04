@@ -4,9 +4,9 @@ import kg.biamino.projects.config.JwtAuthenticationManager;
 import kg.biamino.projects.config.JwtLogoutTokens;
 import kg.biamino.projects.config.JwtUtil;
 import kg.biamino.projects.model.AppUserDetails;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,12 +33,10 @@ class JwtAuthenticationManagerTest {
     @Mock
     private JwtLogoutTokens jwtLogoutTokens;
 
+    @InjectMocks
     private JwtAuthenticationManager jwtAuthenticationManager;
 
-    @BeforeEach
-    void setUp() {
-        jwtAuthenticationManager = new JwtAuthenticationManager(jwtUtil, userDetailsService, jwtLogoutTokens);
-    }
+
 
     private Authentication tokenAuthentication(String rawToken) {
         return new UsernamePasswordAuthenticationToken(rawToken, null);

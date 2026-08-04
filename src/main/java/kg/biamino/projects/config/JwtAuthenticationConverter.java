@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtAuthenticationConverter implements AuthenticationConverter {
+    private final static String TOKEN_PREFIX = "Bearer ";
     @Override
     public Authentication convert(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            return new UsernamePasswordAuthenticationToken(token.substring(7), null);
+        if (token != null && token.startsWith(TOKEN_PREFIX)) {
+            return new UsernamePasswordAuthenticationToken(token.substring(TOKEN_PREFIX.length()), null);
         }
         return null;
     }

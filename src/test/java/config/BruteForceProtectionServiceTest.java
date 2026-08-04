@@ -1,7 +1,6 @@
 package config;
 
 import kg.biamino.projects.config.BruteForceProtectionService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -12,12 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BruteForceProtectionServiceTest {
 
-    private BruteForceProtectionService bruteForceProtectionService;
 
-    @BeforeEach
-    void setUp() {
-        bruteForceProtectionService = new BruteForceProtectionService();
-    }
+    private final BruteForceProtectionService bruteForceProtectionService = new BruteForceProtectionService();
+
+
 
     @Test
     void isBlocked_noAttempts_returnsFalse() {

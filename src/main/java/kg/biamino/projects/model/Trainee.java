@@ -1,10 +1,27 @@
 package kg.biamino.projects.model;
 
-import jakarta.persistence.*;
-import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.CascadeType;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+import lombok.ToString;
+
 
 import java.time.LocalDate;
 import java.util.List;

@@ -6,7 +6,7 @@ import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.mapper.impl.TrainingMapper;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.repository.TrainingRepository;
-import kg.biamino.projects.service.*;
+import kg.biamino.projects.service.TrainingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

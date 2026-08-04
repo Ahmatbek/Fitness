@@ -11,6 +11,7 @@ import kg.biamino.projects.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -35,13 +36,13 @@ class AuthServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @InjectMocks
     private AuthServiceImpl authService;
 
     private User activeUser;
 
     @BeforeEach
     void setUp() {
-        authService = new AuthServiceImpl(jwtUtil, bruteForceProtectionService, userRepository, passwordEncoder);
         activeUser = new User(1L, "Aidana", "Toktosunova", "Aidana.Toktosunova", "hashed-password", true);
     }
 

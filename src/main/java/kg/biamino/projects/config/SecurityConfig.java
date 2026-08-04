@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 
 @Configuration
@@ -38,8 +39,6 @@ public class SecurityConfig {
         AuthenticationFilter authenticationManager = new AuthenticationFilter(jwtAuthenticationManager, jwtAuthenticationConverter);
         authenticationManager.setSuccessHandler((request, response, authentication) -> {});
 
-
-
          http
                  .cors(cors-> cors.configurationSource(corsConfigurationSource))
                  .addFilterBefore(authenticationManager, UsernamePasswordAuthenticationFilter.class)
@@ -55,7 +54,6 @@ public class SecurityConfig {
                  )
                  .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-
          return http.build();
     }
 
@@ -68,7 +66,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:8080",myDomain));
+        configuration.setAllowedOriginPatterns(Collections.singletonList(myDomain));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);

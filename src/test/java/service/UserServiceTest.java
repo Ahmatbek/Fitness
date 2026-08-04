@@ -12,6 +12,7 @@ import kg.biamino.projects.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,16 +31,14 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
+    @InjectMocks
     private UserServiceImpl userService;
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private NewUserCredentials newUserCredentials;
     private User user;
 
     @BeforeEach
     void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
         userService = new UserServiceImpl(userRepository, passwordEncoder);
 
         user = new User();
@@ -48,7 +47,6 @@ class UserServiceTest {
         user.setPassword(passwordEncoder.encode("password"));
         user.setUsername("Akhmat.Tursunbaev");
 
-        newUserCredentials = new NewUserCredentials(user, "password");
     }
 
     private User existingUser(String username, String password, boolean active) {

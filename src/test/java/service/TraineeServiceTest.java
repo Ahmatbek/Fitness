@@ -1,6 +1,5 @@
 package service;
 
-import jakarta.persistence.criteria.Predicate;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.exception.DateInvalidException;
@@ -17,6 +16,7 @@ import kg.biamino.projects.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,6 +46,8 @@ class TraineeServiceTest {
     private UserService userService;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @InjectMocks
     private TraineeServiceImpl traineeService;
 
     private User user;
@@ -54,7 +56,6 @@ class TraineeServiceTest {
 
     @BeforeEach
     void setUp() {
-        traineeService = new TraineeServiceImpl(userService);
         traineeService.setTrainerRepository(trainerRepository);
         traineeService.setTrainingRepository(trainingRepository);
         traineeService.setTraineeRepository(traineeRepository);

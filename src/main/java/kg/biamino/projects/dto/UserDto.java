@@ -1,7 +1,10 @@
 package kg.biamino.projects.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 

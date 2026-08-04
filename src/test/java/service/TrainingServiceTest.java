@@ -8,6 +8,7 @@ import kg.biamino.projects.service.impl.TrainingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -26,11 +27,11 @@ class TrainingServiceTest {
     @Mock
     private TrainingMapper trainingMapper;
 
+    @InjectMocks
     private TrainingServiceImpl trainingService;
 
     @BeforeEach
     void setUp() {
-        trainingService = new TrainingServiceImpl(trainingMapper);
         trainingService.setTrainingRepository(trainingRepository);
     }
 

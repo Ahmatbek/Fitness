@@ -1,6 +1,5 @@
 package service;
 
-import jakarta.persistence.criteria.Predicate;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.model.Trainee;
@@ -17,12 +16,12 @@ import kg.biamino.projects.service.impl.TrainerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,8 +47,9 @@ class TrainerServiceTest {
     @Mock
     private UserService userService;
 
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    @InjectMocks
     private TrainerServiceImpl trainerService;
 
     private User user;
@@ -59,8 +59,6 @@ class TrainerServiceTest {
 
     @BeforeEach
     void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-        trainerService = new TrainerServiceImpl(userService, trainingTypeService);
         trainerService.setTrainerDao(trainerRepository);
         trainerService.setTraineeRepository(traineeRepository);
         trainerService.setTrainingRepository(trainingRepository);

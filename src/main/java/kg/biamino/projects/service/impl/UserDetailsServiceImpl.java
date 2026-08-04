@@ -1,5 +1,6 @@
 package kg.biamino.projects.service.impl;
 
+import kg.biamino.projects.enums.Role;
 import kg.biamino.projects.exception.UserInactiveException;
 import kg.biamino.projects.model.AppUserDetails;
 import kg.biamino.projects.model.User;
@@ -36,10 +37,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         String role=null;
         if(traineeRepository.findTraineeByUserId(user.getId()).isPresent()){
-            role="TRAINEE";
+            role= Role.TRAINEE.name().toUpperCase();
         }
         else if(trainerRepository.findByUserId(user.getId()).isPresent()){
-            role="TRAINER";
+            role= Role.TRAINER.name().toUpperCase();
         }
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(role));

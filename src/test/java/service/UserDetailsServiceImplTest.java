@@ -8,9 +8,9 @@ import kg.biamino.projects.repository.TraineeRepository;
 import kg.biamino.projects.repository.TrainerRepository;
 import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.impl.UserDetailsServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,12 +33,10 @@ class UserDetailsServiceImplTest {
     @Mock
     private TrainerRepository trainerRepository;
 
+    @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
 
-    @BeforeEach
-    void setUp() {
-        userDetailsService = new UserDetailsServiceImpl(userRepository, traineeRepository, trainerRepository);
-    }
+
 
     private User activeUser() {
         return new User(1L, "Dilmurod", "Sadyrov", "Dilmurod.Sadyrov", "hashed-password", true);
