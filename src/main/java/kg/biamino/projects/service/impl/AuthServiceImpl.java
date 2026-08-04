@@ -8,7 +8,6 @@ import kg.biamino.projects.exception.UserInactiveException;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.AuthService;
-import kg.biamino.projects.service.UserService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

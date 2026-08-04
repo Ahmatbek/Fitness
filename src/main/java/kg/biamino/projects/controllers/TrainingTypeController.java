@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import kg.biamino.projects.service.TrainingTypeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,7 @@ public class TrainingTypeController {
             @ApiResponse(responseCode = "200", description = "training types list returned"),
             @ApiResponse(responseCode = "401", description = "authentication failed")
     })
-    ResponseEntity<?> getAllTrainingTypes(HttpServletRequest req) {
+    ResponseEntity<?> getAllTrainingTypes() {
         return ResponseEntity.ok(trainingTypeService.findAll());
     }
 }

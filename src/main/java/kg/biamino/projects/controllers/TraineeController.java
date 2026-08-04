@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.service.TraineeService;
@@ -44,7 +43,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "user pasted incorrect data"),
             @ApiResponse(responseCode = "404", description = "trainee with this username doesnt exist")
     })
-    public ResponseEntity<?> getTraineeByUsername(@Parameter(description = "trainee's username") @RequestParam(name = "username") String username, HttpServletRequest request) {
+    public ResponseEntity<?> getTraineeByUsername(@Parameter(description = "trainee's username") @RequestParam(name = "username") String username) {
         return ResponseEntity.ok(traineeService.findByUsername(username));
     }
 
@@ -95,7 +94,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "401", description = "authentication failed"),
             @ApiResponse(responseCode = "404", description = "trainee with this username doesnt exist")
     })
-    public ResponseEntity<?> getTrainersNotAssignedByTraineeByUsername(@Parameter(description = "trainee's username") @RequestParam(name = "username") String username, HttpServletRequest request) {
+    public ResponseEntity<?> getTrainersNotAssignedByTraineeByUsername(@Parameter(description = "trainee's username") @RequestParam(name = "username") String username) {
         return ResponseEntity.ok(traineeService.findNotAssignedTrainersByUsername(username));
     }
 
@@ -119,7 +118,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "400", description = "required fields missing or invalid"),
             @ApiResponse(responseCode = "401", description = "authentication failed")
     })
-    public ResponseEntity<?> getTraineeTrainings(@Valid @RequestBody TraineeTrainingsDto traineeTrainingsDto, HttpServletRequest request) {
+    public ResponseEntity<?> getTraineeTrainings(@Valid @RequestBody TraineeTrainingsDto traineeTrainingsDto) {
         return ResponseEntity.ok(traineeService.getTrainingsByCriteria(traineeTrainingsDto));
     }
 

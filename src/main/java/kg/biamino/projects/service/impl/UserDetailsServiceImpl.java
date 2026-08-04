@@ -6,7 +6,6 @@ import kg.biamino.projects.model.User;
 import kg.biamino.projects.repository.TraineeRepository;
 import kg.biamino.projects.repository.TrainerRepository;
 import kg.biamino.projects.repository.UserRepository;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

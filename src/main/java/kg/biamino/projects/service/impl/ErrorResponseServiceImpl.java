@@ -1,11 +1,6 @@
 package kg.biamino.projects.service.impl;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import kg.biamino.projects.dto.ErrorResponseBody;
-import kg.biamino.projects.exception.AuthenticationException;
-import kg.biamino.projects.exception.AuthorizationException;
-import kg.biamino.projects.exception.TrainingTypeNotFoundException;
 import kg.biamino.projects.service.ErrorResponseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

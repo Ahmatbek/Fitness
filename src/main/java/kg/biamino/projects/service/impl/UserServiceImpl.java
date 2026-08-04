@@ -4,7 +4,6 @@ import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import kg.biamino.projects.dto.ChangePasswordDto;
 import kg.biamino.projects.dto.NewUserCredentials;
-import kg.biamino.projects.dto.UserCredentialsDto;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.exception.AuthenticationException;
 import kg.biamino.projects.exception.AuthorizationException;
@@ -14,13 +13,11 @@ import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 

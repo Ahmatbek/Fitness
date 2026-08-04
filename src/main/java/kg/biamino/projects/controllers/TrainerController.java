@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.service.TrainerService;
@@ -43,7 +42,7 @@ public class TrainerController{
             @ApiResponse(responseCode = "401", description = "authentication failed"),
             @ApiResponse(responseCode = "404", description = "trainer with this username doesnt exist")
     })
-    public ResponseEntity<?> findByUsername(@Parameter(description = "trainer's username") @RequestParam(name="username") String username, HttpServletRequest req) {
+    public ResponseEntity<?> findByUsername(@Parameter(description = "trainer's username") @RequestParam(name="username") String username) {
         return ResponseEntity.ok(trainerService.findByUsername(username));
     }
 
@@ -80,7 +79,7 @@ public class TrainerController{
             @ApiResponse(responseCode = "400", description = "required fields missing or invalid"),
             @ApiResponse(responseCode = "401", description = "authentication failed")
     })
-    public ResponseEntity<?> getTraineeTrainings(@Valid @RequestBody TrainerTrainingsDto traineeTrainingsDto, HttpServletRequest request) {
+    public ResponseEntity<?> getTraineeTrainings(@Valid @RequestBody TrainerTrainingsDto traineeTrainingsDto) {
         return ResponseEntity.ok(trainerService.getTrainingsByCriteria(traineeTrainingsDto));
     }
 }
