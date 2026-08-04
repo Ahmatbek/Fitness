@@ -90,7 +90,7 @@ class UserServiceTest {
         assertEquals("Nurlan.Bekov", result.user().getUsername());
         assertNotNull(result.user().getPassword());
         assertTrue(result.user().getIsActive());
-        assertTrue(passwordEncoder.matches(result.user().getPassword(), passwordEncoder.encode(result.user().getPassword())));
+        assertTrue(passwordEncoder.matches(result.password(), result.user().getPassword()));
     }
 
     @Test
