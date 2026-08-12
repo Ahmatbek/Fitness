@@ -1,22 +1,12 @@
 package kg.biamino.projects.repository;
 
-import kg.biamino.projects.dto.TraineeTrainingsDto;
-import kg.biamino.projects.dto.TrainerTrainingsDto;
 import kg.biamino.projects.model.Training;
-import kg.biamino.projects.records.TraineeCriteriaDto;
-import kg.biamino.projects.records.TrainerCriteriaDto;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
 
-public interface TrainingRepository {
-    Training save(Training training);
+@Repository
+public interface TrainingRepository extends JpaRepository<Training, Long>, JpaSpecificationExecutor<Training> {
 
-    Optional<Training> findById(Long id);
-
-    List<Training> findAll();
-
-    List<Training> findByCriteria(String  username, TraineeTrainingsDto traineeCriteriaDto);
-
-    List<Training> findByCriteria(String username, TrainerTrainingsDto traineeCriteriaDto);
 }

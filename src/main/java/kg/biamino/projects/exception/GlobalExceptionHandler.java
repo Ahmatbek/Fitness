@@ -5,6 +5,7 @@ import kg.biamino.projects.dto.ErrorResponseBody;
 import kg.biamino.projects.service.ErrorResponseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -60,7 +61,16 @@ public class GlobalExceptionHandler  {
     }
     @ExceptionHandler(value={DateInvalidException.class})
     public ResponseEntity<ErrorResponseBody> dateInvalidException(DateInvalidException e) {
-        return new ResponseEntity<>(errorResponseService.makeResponse(e), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorResponseService.makeResponse(e), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ErrorResponseBody> badCredentialsException(BadCredentialsException e) {
+        return new ResponseEntity<>(errorResponseService.makeResponse(e), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(value = UserInactiveException.class)
+    public ResponseEntity<ErrorResponseBody> userInactiveException(UserInactiveException e) {
+        return new ResponseEntity<>(errorResponseService.makeResponse(e), HttpStatus.UNAUTHORIZED);
+    }
 }

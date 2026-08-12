@@ -1,0 +1,1 @@
+insert into training_types(id, name) values (1,'individual' ),(2,'group');

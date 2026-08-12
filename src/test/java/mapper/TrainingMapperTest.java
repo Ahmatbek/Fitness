@@ -9,9 +9,9 @@ import kg.biamino.projects.model.TrainingType;
 import kg.biamino.projects.service.TraineeService;
 import kg.biamino.projects.service.TrainerService;
 import kg.biamino.projects.service.TrainingTypeService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -31,12 +31,10 @@ class TrainingMapperTest {
     @Mock
     private TraineeService traineeService;
 
+    @InjectMocks
     private TrainingMapper trainingMapper;
 
-    @BeforeEach
-    void setUp() {
-        trainingMapper = new TrainingMapper(trainingTypeService, trainerService, traineeService);
-    }
+
 
     @Test
     void toEntity_mapsAllFieldsFromDto() {

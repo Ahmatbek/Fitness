@@ -1,21 +1,31 @@
 package kg.biamino.projects.service.impl;
 
-import kg.biamino.projects.auth.AuthHandler;
-import kg.biamino.projects.dto.*;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.exception.DateInvalidException;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.User;
-import kg.biamino.projects.repository.TraineeRepository;
-import kg.biamino.projects.repository.TrainerRepository;
-import kg.biamino.projects.repository.TrainingRepository;
+import kg.biamino.projects.dto.NewUserCredentials;
+import kg.biamino.projects.dto.UserCredentialsDto;
+import kg.biamino.projects.dto.TraineeTrainersListDto;
+import kg.biamino.projects.dto.UpdateTraineeDto;
+import kg.biamino.projects.dto.TraineeDto;
+import kg.biamino.projects.dto.ChangeStatusDto;
+import kg.biamino.projects.dto.TrainerUsernameDto;
+import kg.biamino.projects.dto.UpdateTraineeTrainersDto;
+import kg.biamino.projects.dto.TraineeTrainingsDto;
+import kg.biamino.projects.dto.TrainingsDisplayInfoTrainee;
+import kg.biamino.projects.repository.*;
 import kg.biamino.projects.service.TraineeService;
 import kg.biamino.projects.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -29,6 +39,8 @@ import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 
 @Service
 @Slf4j
+@Counted(value = "trainee.methods", description = "the number of call traineeService")
+@Timed(value = "trainee", description = "amount of time each method executes")
 public class TraineeServiceImpl implements TraineeService {
 
     private TraineeRepository traineeRepository;
@@ -60,7 +72,7 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public Trainee getTraineeByUsername(String name) {
         User user = userService.findUserByUsername(name);
-        return traineeRepository.findByUserId(user.getId()).orElseThrow(()-> new NoSuchElementException("user doesnt exist"));
+        return traineeRepository.findTraineeByUserId(user.getId()).orElseThrow(()-> new NoSuchElementException("user doesnt exist"));
     }
 
     @Override
@@ -69,20 +81,21 @@ public class TraineeServiceImpl implements TraineeService {
         nullChecker(traineeDto, "traineeDto");
         dateValidation(traineeDto.getDateOfBirth());
         log.info("Creating trainee: {}", traineeDto);
-        User user = userService.createUser(traineeDto);
+        NewUserCredentials newUserCredentials = userService.createUser(traineeDto);
 
 
         Trainee trainee = new Trainee();
         trainee.setAddress(traineeDto.getAddress());
         trainee.setDateOfBirth(traineeDto.getDateOfBirth());
-        trainee.setUser(user);
+        trainee.setUser(newUserCredentials.user());
 
+        log.info("Created trainee: {}",trainee);
 
         traineeRepository.save(trainee);
 
         return UserCredentialsDto.builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
+                .username(newUserCredentials.user().getUsername())
+                .password(newUserCredentials.password())
                 .build();
 
     }
@@ -98,12 +111,12 @@ public class TraineeServiceImpl implements TraineeService {
         }
         User user = userService.updateUser(username, traineeDto, traineeDto.getIsActive());
 
-        Trainee trainee = traineeRepository.findByUserIdToGetTrainers(user.getId()).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
+        Trainee trainee = traineeRepository.findTraineeByUserId(user.getId()).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
         nullChecker(trainee, "trainee");
         trainee.setDateOfBirth(traineeDto.getDateOfBirth()!=null ? traineeDto.getDateOfBirth() : trainee.getDateOfBirth());
         trainee.setAddress(traineeDto.getAddress() != null ? traineeDto.getAddress() : trainee.getAddress());
 
-        traineeRepository.update(trainee);
+        traineeRepository.save(trainee);
 
         return TraineeTrainersListDto.builder()
                 .firstName(trainee.getUser().getFirstName())
@@ -122,7 +135,7 @@ public class TraineeServiceImpl implements TraineeService {
     public TraineeTrainersListDto findByUsername(String username) {
         stringChecker(username, "username");
         User user = userService.findUserByUsername(username);
-        Trainee tr =  traineeRepository.findByUserIdToGetTrainers(user.getId())
+        Trainee tr =  traineeRepository.findTraineeByUserId(user.getId())
                 .orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
 
         return TraineeTrainersListDto.builder()
@@ -140,9 +153,11 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public void changeStatusTrainer(ChangeStatusDto changeStatusDto, String authUsername) {
-        AuthHandler.checkAuthorization(changeStatusDto.getUsername(), authUsername);
+        if (!changeStatusDto.getUsername().equals(authUsername)) {
+            throw new AuthorizationException("You dont have access to change others accounts");
+        }
         User user = userService.findUserByUsername(authUsername);
-        traineeRepository.findByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("User doesnt have trainee profile"));
+        traineeRepository.findTraineeByUserId(user.getId()).orElseThrow(() -> new NoSuchElementException("User doesnt have trainee profile"));
         userService.changeStatus(user, changeStatusDto.getIsActive());
     }
 
@@ -157,8 +172,42 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     @Transactional
-    public List<TrainingsDisplayInfoTrainee> getTrainingsByCriteria(TraineeTrainingsDto traineeCriteriaDto) {
-        List<Training> trainings = trainingRepository.findByCriteria(traineeCriteriaDto.getUsername(), traineeCriteriaDto);
+    public List<TrainingsDisplayInfoTrainee> getTrainingsByCriteria(TraineeTrainingsDto criteria) {
+
+        Specification<Training> specification =  (root, query, cb)->{
+            List<Predicate> predicates = new ArrayList<>();
+
+
+            predicates.add(cb.equal(
+                    root.join("trainee").join("user").get("username"),
+                    criteria.getUsername()
+            ));
+
+            if (criteria.getFrom() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("date"), criteria.getFrom()));
+            }
+
+            if (criteria.getTo() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("date"), criteria.getTo()));
+            }
+
+            if (criteria.getTrainerName() != null) {
+                predicates.add(cb.equal(
+                        root.join("trainer").join("user").get("firstName"),
+                        criteria.getTrainerName()
+                ));
+            }
+
+            if (criteria.getTrainingType() != null) {
+                predicates.add(cb.equal(
+                        root.join("trainingType").get("name"),
+                        criteria.getTrainingType()
+                ));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        List<Training> trainings = trainingRepository.findAll(specification);
         return trainings.stream().map(this::toTrainingsDisplayInfoTrainee).toList();
 
     }
@@ -167,9 +216,11 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @Transactional
     public void deleteTraineeByUsername(String username, String authUsername) {
-        AuthHandler.checkAuthorization(username, authUsername);
+        if (!username.equals(authUsername)) {
+            throw new AuthorizationException("You dont have access to delete others accounts");
+        }
         User user  = userService.findUserByUsername(username);
-        Trainee trainee = traineeRepository.findByUserIdToGetTrainers(user.getId()).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
+        Trainee trainee = traineeRepository.findTraineeByUserId(user.getId()).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
         traineeRepository.deleteById(trainee.getId());
     }
 
@@ -177,9 +228,9 @@ public class TraineeServiceImpl implements TraineeService {
     public List<TrainerUsernameDto> findNotAssignedTrainersByUsername(String username) {
         nullChecker(username, "username");
         User user = userService.findUserByUsername(username);
-        Trainee trainee = traineeRepository.findByUsername(user.getUsername()).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
+        Trainee trainee = traineeRepository.findTraineeByUserUsername(user.getUsername()).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
 
-        List<Trainer> trainers = trainerRepository.findNotAssignedTrainersByTraineeId(trainee.getId());
+        List<Trainer> trainers = trainerRepository.findNotAssignedTrainees(trainee.getId());
 
         return trainers.stream().map(this::toTrainerUsernameDto).toList();
 
@@ -190,8 +241,10 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @Transactional
     public List<TrainerUsernameDto> updateTrainersByUsername(UpdateTraineeTrainersDto updateTraineeTrainersDto, String username) {
-        AuthHandler.checkAuthorization(updateTraineeTrainersDto.getUsername(), username);
-        Trainee trainee = traineeRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
+        if (!updateTraineeTrainersDto.getUsername().equals(username)) {
+            throw new AuthorizationException("You dont have access to change others accounts");
+        }
+        Trainee trainee = traineeRepository.findTraineeByUserUsername(username).orElseThrow(()-> new NoSuchElementException("user doesnt have trainee profile"));
         List<Trainer> trainers = trainee.getTrainers();
         List<String> usernames = updateTraineeTrainersDto.getTrainers();
         List<Trainer> newTrainers = new ArrayList<>();

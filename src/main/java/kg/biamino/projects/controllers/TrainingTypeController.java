@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.service.TrainingTypeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class TrainingTypeController {
 
     private final TrainingTypeService trainingTypeService;
-    private final AuthHandler authHandler;
 
-    public TrainingTypeController(TrainingTypeService trainingTypeService, AuthHandler authHandler) {
+    public TrainingTypeController(TrainingTypeService trainingTypeService) {
         this.trainingTypeService = trainingTypeService;
-        this.authHandler = authHandler;
     }
 
     @GetMapping
@@ -32,8 +28,7 @@ public class TrainingTypeController {
             @ApiResponse(responseCode = "200", description = "training types list returned"),
             @ApiResponse(responseCode = "401", description = "authentication failed")
     })
-    ResponseEntity<?> getAllTrainingTypes(HttpServletRequest req) {
-        authHandler.handle(req);
+    ResponseEntity<?> getAllTrainingTypes() {
         return ResponseEntity.ok(trainingTypeService.findAll());
     }
 }

@@ -1,0 +1,1 @@
+alter table trainees drop column if exists dateofbirth

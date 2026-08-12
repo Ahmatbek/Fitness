@@ -1,17 +1,12 @@
 package kg.biamino.projects.repository;
 
-import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.TrainingType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface TrainingTypeRepository {
-    TrainingType save(TrainingType trainingType);
-
-    Optional<TrainingType> findById(Long id);
-
+@Repository
+public interface TrainingTypeRepository extends JpaRepository<TrainingType, Long>  {
     Optional<TrainingType> findByName(String name);
-
-    List<TrainingType> findAll();
 }

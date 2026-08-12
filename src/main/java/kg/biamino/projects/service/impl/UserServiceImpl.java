@@ -1,6 +1,9 @@
 package kg.biamino.projects.service.impl;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import kg.biamino.projects.dto.ChangePasswordDto;
+import kg.biamino.projects.dto.NewUserCredentials;
 import kg.biamino.projects.dto.UserDto;
 import kg.biamino.projects.exception.AuthenticationException;
 import kg.biamino.projects.exception.AuthorizationException;
@@ -10,6 +13,7 @@ import kg.biamino.projects.repository.UserRepository;
 import kg.biamino.projects.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +26,18 @@ import static kg.biamino.projects.utils.ValidationInput.stringChecker;
 
 @Service
 @Slf4j
+@Counted(value = "users.methods", description = "userService number of times each method is called")
+@Timed(value = "users", description = "amount of time each method executes")
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
-
+    private final UserRepository userRepository;
+    private final PasswordEncoder bCryptPasswordEncoder;
     private final SecureRandom random = new SecureRandom();
 
     @Autowired
-    public void setUserDao(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -41,7 +48,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(UserDto user) {
+    public NewUserCredentials createUser(UserDto user) {
+        String password = generateThePassword();
 
         nullChecker(user, "user");
         stringChecker(user.getFirstName(), "userDto");
@@ -50,10 +58,12 @@ public class UserServiceImpl implements UserService {
         user1.setFirstName(user.getFirstName());
         user1.setLastName(user.getLastName());
         user1.setUsername(generateUsername(user.getFirstName(), user.getLastName()));
-        user1.setPassword(generateThePassword());
+        user1.setPassword(bCryptPasswordEncoder.encode(password));
         user1.setIsActive(true);
         log.info("Created user {}", user1);
-        return userRepository.save(user1);
+        userRepository.save(user1);
+
+       return new NewUserCredentials(user1, password);
     }
 
     private String generateThePassword() {
@@ -107,7 +117,7 @@ public class UserServiceImpl implements UserService {
         user.setLastName(userDto.getLastName() != null ? userDto.getLastName() : user.getLastName());
         user.setIsActive(status);
         log.info("Updated user {}", user.getFirstName());
-        userRepository.update(user);
+        userRepository.save(user);
         return user;
     }
 
@@ -129,28 +139,21 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public void userAuthenticated(String username, String password) {
         User user = findUserByUsername(username);
-        if (!user.getPassword().equals(password)) throw new AuthenticationException("Passwords do not match or username doesnt exist");
+        if(!bCryptPasswordEncoder.matches(password, user.getPassword())) throw new AuthenticationException("Invalid password");
 
     }
-
-    @Override
-    @Transactional
-    public void changePassword(User user, String newPassword) {
-        stringChecker(newPassword, "newPassword");
-        user.setPassword(newPassword);
-        userRepository.update(user);
-    }
-
     @Override
     @Transactional
     public void changePassword(ChangePasswordDto changePasswordDto, String authUsername) {
+        stringChecker(changePasswordDto.newPassword(), "newPassword");
         userAuthenticated(changePasswordDto.username(), changePasswordDto.oldPassword());
         User user = findUserByUsername(changePasswordDto.username());
         if(!user.getUsername().equals(authUsername)) {
-            throw new AuthorizationException("Authenticated User doesnt have permissions change other users");
+            throw new AuthorizationException("User cannot change other's password");
         }
-        user.setPassword(changePasswordDto.newPassword());
-        userRepository.update(user);
+
+        user.setPassword(bCryptPasswordEncoder.encode(changePasswordDto.newPassword()));
+        userRepository.save(user);
 
     }
 
@@ -159,7 +162,7 @@ public class UserServiceImpl implements UserService {
     public void changeStatus(User user, Boolean status) {
         nullChecker(status, "status");
         user.setIsActive(status);
-        userRepository.update(user);
+        userRepository.save(user);
 
     }
 

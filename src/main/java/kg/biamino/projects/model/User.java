@@ -1,9 +1,22 @@
 package kg.biamino.projects.model;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Column;
+import jakarta.persistence.SequenceGenerator;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+import lombok.ToString;
+
 
 @Getter
 @Setter

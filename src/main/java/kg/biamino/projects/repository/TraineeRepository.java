@@ -1,26 +1,23 @@
 package kg.biamino.projects.repository;
 
 import kg.biamino.projects.model.Trainee;
-import kg.biamino.projects.model.Trainer;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface TraineeRepository {
-    Trainee save(Trainee trainee);
+@Repository
+public interface TraineeRepository extends JpaRepository<Trainee, Long> {
+     @Query(value = """
+               Select t.* from trainees t
+               left join trainee_traineer tt on tt.trainee_id=t.id
+               join users u on u.id = t.user_id
+               where t.user_id = :id
+""", nativeQuery = true)
+     Optional<Trainee> findTraineeByUserId(Long id);
 
-    Trainee update(Trainee trainee);
+     Optional<Trainee> findTraineeByUserUsername(String username);
 
-    Optional<Trainee> findById(Long id) ;
-
-    List<Trainee> findAll();
-
-    void deleteById(Long id);
-
-    Optional<Trainee> findByUsername(String user);
-
-    Optional<Trainee> findByUserId(Long id);
-
-    Optional<Trainee> findByUserIdToGetTrainers(Long id);
 
 }

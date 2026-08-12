@@ -4,12 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.service.TrainingService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,10 +17,8 @@ import org.springframework.web.bind.annotation.*;
 public class TrainingController {
 
     private final TrainingService trainingService;
-    private final AuthHandler authHandler;
-    public TrainingController(TrainingService trainingService, AuthHandler authHandler) {
+    public TrainingController(TrainingService trainingService) {
         this.trainingService = trainingService;
-        this.authHandler = authHandler;
     }
 
 
@@ -33,8 +30,8 @@ public class TrainingController {
             @ApiResponse(responseCode = "401", description = "authentication failed"),
             @ApiResponse(responseCode = "404", description = "trainee, trainer or training type doesnt exist")
     })
-    public ResponseEntity<?> createTraining(@Valid @RequestBody TrainingDto trainingDto, HttpServletRequest request) {
-        authHandler.handle(request);
+    @PreAuthorize("hasAuthority('TRAINER')")
+    public ResponseEntity<?> createTraining(@Valid @RequestBody TrainingDto trainingDto) {
         trainingService.createTraining(trainingDto);
         return ResponseEntity.ok().build();
     }

@@ -2,15 +2,17 @@ package kg.biamino.projects.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.jackson.Jacksonized;
 
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.Builder;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
 @Builder
-//@Jacksonized
 public class UserCredentialsDto {
     @NotBlank(message = "username can't be blank")
     String username;

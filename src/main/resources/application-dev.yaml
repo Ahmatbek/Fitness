@@ -1,0 +1,37 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show_sql: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fitness-dev
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/master-dev.yaml
+
+  security:
+    jwt:
+      secret-key: ${SECRET_KEY}
+      access-token-expiration: 900000
+
+
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: health, prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: backend
+
+application:
+  domain: ${MY_DOMAIN}

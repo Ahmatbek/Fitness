@@ -1,7 +1,6 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kg.biamino.projects.auth.AuthHandler;
 import kg.biamino.projects.controllers.TrainerController;
 import kg.biamino.projects.dto.ChangeStatusDto;
 import kg.biamino.projects.dto.TrainerDto;
@@ -9,7 +8,6 @@ import kg.biamino.projects.dto.TrainerTraineesListDto;
 import kg.biamino.projects.dto.TrainerTrainingsDto;
 import kg.biamino.projects.dto.UpdateTrainerDto;
 import kg.biamino.projects.dto.UserCredentialsDto;
-import kg.biamino.projects.exception.AuthenticationException;
 import kg.biamino.projects.exception.GlobalExceptionHandler;
 import kg.biamino.projects.service.TrainerService;
 import kg.biamino.projects.service.impl.ErrorResponseServiceImpl;
@@ -36,15 +34,13 @@ class TrainerControllerTest {
 
     @Mock
     private TrainerService trainerService;
-    @Mock
-    private AuthHandler authHandler;
 
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = TestObjectMappers.create();
 
     @BeforeEach
     void setUp() {
-        TrainerController controller = new TrainerController(trainerService, authHandler);
+        TrainerController controller = new TrainerController(trainerService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler(new ErrorResponseServiceImpl()))
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
@@ -88,14 +84,6 @@ class TrainerControllerTest {
     }
 
     @Test
-    void findByUsername_authenticationFails_returns401() throws Exception {
-        when(authHandler.handle(any())).thenThrow(new AuthenticationException("bad credentials"));
-
-        mockMvc.perform(get("/trainers").param("username", "Aidana.Toktosunova"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
     void findByUsername_notFound_returns404() throws Exception {
         when(trainerService.findByUsername("nonexistent")).thenThrow(new NoSuchElementException("trainer not found"));
 
@@ -106,12 +94,12 @@ class TrainerControllerTest {
     @Test
     void updateTrainer_validRequest_returns200() throws Exception {
         UpdateTrainerDto dto = UpdateTrainerDto.builder().firstName("Aidana").lastName("Toktosunova").username("Aidana.Toktosunova").isActive(true).build();
-        when(authHandler.handle(any())).thenReturn("Aidana.Toktosunova");
         when(trainerService.updateTrainer(any(), eq("Aidana.Toktosunova")))
                 .thenReturn(TrainerTraineesListDto.builder().firstName("Aidana").lastName("Toktosunova").trainees(List.of()).build());
 
         mockMvc.perform(put("/trainers")
                         .contentType("application/json")
+                        .principal(() -> "Aidana.Toktosunova")
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
     }
@@ -131,10 +119,10 @@ class TrainerControllerTest {
         ChangeStatusDto dto = new ChangeStatusDto();
         dto.setUsername("Aidana.Toktosunova");
         dto.setIsActive(false);
-        when(authHandler.handle(any())).thenReturn("Aidana.Toktosunova");
 
         mockMvc.perform(patch("/trainers")
                         .contentType("application/json")
+                        .principal(() -> "Aidana.Toktosunova")
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
 
@@ -155,7 +143,6 @@ class TrainerControllerTest {
     @Test
     void getTraineeTrainings_validRequest_returns200() throws Exception {
         TrainerTrainingsDto dto = TrainerTrainingsDto.builder().username("Aidana.Toktosunova").build();
-        when(authHandler.handle(any())).thenReturn("Aidana.Toktosunova");
         when(trainerService.getTrainingsByCriteria(any())).thenReturn(List.of());
 
         mockMvc.perform(get("/trainers/trainings")
