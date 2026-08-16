@@ -54,7 +54,8 @@ public class TrainerServiceImpl implements TrainerService {
     private final WorkloadServiceClient workloadServiceClient;
 
     @Autowired
-    public  TrainerServiceImpl(UserService userService,  TrainingTypeService trainingTypeService, WorkloadServiceClient workloadServiceClient) {
+    public  TrainerServiceImpl(UserService userService,  TrainingTypeService trainingTypeService,
+                               WorkloadServiceClient workloadServiceClient) {
         this.userService = userService;
         this.trainingTypeService = trainingTypeService;
         this.workloadServiceClient = workloadServiceClient;
