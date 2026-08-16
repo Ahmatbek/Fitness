@@ -17,7 +17,7 @@
         <module>trainer</module>
         <module>EurekuServer</module>
         <module>fitness</module>
-        <module>common</module>
+        <module>shared-libs</module>
     </modules>
     <properties>
         <java.version>21</java.version>

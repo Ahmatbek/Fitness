@@ -1,10 +1,10 @@
 package service;
 
-import kg.biamino.projects.ActionType;
-import kg.biamino.projects.MonthDto;
-import kg.biamino.projects.TrainerSummaryResponse;
-import kg.biamino.projects.TrainerWorkloadRequest;
-import kg.biamino.projects.YearsDto;
+import kg.biamino.projects.enums.ActionType;
+import kg.biamino.projects.dto.MonthDto;
+import kg.biamino.projects.dto.TrainerSummaryResponse;
+import kg.biamino.projects.dto.TrainerWorkloadRequest;
+import kg.biamino.projects.dto.YearsDto;
 import kg.biamino.projects.dto.MonthlyDurationDto;
 import kg.biamino.projects.exception.TrainerNotFoundException;
 import kg.biamino.projects.model.TrainerSummary;
@@ -115,9 +115,9 @@ class TrainerSummaryServiceImplTest {
         assertEquals(Boolean.TRUE, response.getStatus());
         assertEquals(1, response.getYearsDtoList().size());
 
-        YearsDto yearsDto = response.getYearsDtoList().get(0);
+        YearsDto yearsDto = response.getYearsDtoList().getFirst();
         assertEquals(2026, yearsDto.getYear());
-        MonthDto monthDto = yearsDto.getMonthDtoList().get(0);
+        MonthDto monthDto = yearsDto.getMonthDtoList().getFirst();
         assertEquals(8, monthDto.getMonth());
         assertEquals(120L, monthDto.getTrainingSummaryDuration());
     }

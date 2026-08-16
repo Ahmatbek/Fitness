@@ -3,7 +3,7 @@ package kg.biamino.projects.service.impl;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import jakarta.persistence.criteria.Predicate;
-import kg.biamino.projects.TrainerSummaryResponse;
+import kg.biamino.projects.dto.TrainerSummaryResponse;
 import kg.biamino.projects.dto.NewUserCredentials;
 import kg.biamino.projects.dto.TrainerDto;
 import kg.biamino.projects.dto.TrainerTraineesListDto;
@@ -54,7 +54,8 @@ public class TrainerServiceImpl implements TrainerService {
     private final WorkloadServiceClient workloadServiceClient;
 
     @Autowired
-    public  TrainerServiceImpl(UserService userService,  TrainingTypeService trainingTypeService,
+    public  TrainerServiceImpl(UserService userService,
+                               TrainingTypeService trainingTypeService,
                                WorkloadServiceClient workloadServiceClient) {
         this.userService = userService;
         this.trainingTypeService = trainingTypeService;
@@ -262,7 +263,6 @@ public class TrainerServiceImpl implements TrainerService {
                 .trainingType(training.getTrainingType().getName())
                 .build();
     }
-
 
     @Override
     public ResponseEntity<TrainerSummaryResponse> getSummaryByUsername(String username) {

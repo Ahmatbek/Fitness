@@ -1,4 +1,4 @@
-package kg.biamino.projects;
+package kg.biamino.projects.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

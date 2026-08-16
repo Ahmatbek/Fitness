@@ -1,9 +1,15 @@
 package kg.biamino.projects.service;
 
-import kg.biamino.projects.TrainerSummaryResponse;
-import kg.biamino.projects.dto.*;
+import kg.biamino.projects.dto.TrainerSummaryResponse;
+import kg.biamino.projects.dto.UserCredentialsDto;
+import kg.biamino.projects.dto.AuthUserDto;
+import kg.biamino.projects.dto.TrainerDto;
+import kg.biamino.projects.dto.TrainerTraineesListDto;
+import kg.biamino.projects.dto.TrainerTrainingsDto;
+import kg.biamino.projects.dto.UpdateTrainerDto;
+import kg.biamino.projects.dto.ChangeStatusDto;
+import kg.biamino.projects.dto.TrainingsDisplayInfoTrainer;
 import kg.biamino.projects.model.Trainer;
-import kg.biamino.projects.model.Training;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 

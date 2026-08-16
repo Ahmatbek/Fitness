@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kg.biamino.projects.config.JwtLogoutTokens;
-import kg.biamino.projects.JwtUtil;
+import kg.biamino.projects.utils.JwtUtil;
 import kg.biamino.projects.dto.ChangePasswordDto;
 import kg.biamino.projects.dto.LoginRequestDto;
 import kg.biamino.projects.dto.TokenResponseDto;

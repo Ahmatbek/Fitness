@@ -1,11 +1,11 @@
 package kg.biamino.projects.service.impl;
 
-import kg.biamino.projects.ActionType;
-import kg.biamino.projects.TrainerWorkloadRequest;
-import kg.biamino.projects.MonthDto;
+import kg.biamino.projects.enums.ActionType;
+import kg.biamino.projects.dto.TrainerWorkloadRequest;
+import kg.biamino.projects.dto.MonthDto;
 import kg.biamino.projects.dto.MonthlyDurationDto;
-import kg.biamino.projects.TrainerSummaryResponse;
-import kg.biamino.projects.YearsDto;
+import kg.biamino.projects.dto.TrainerSummaryResponse;
+import kg.biamino.projects.dto.YearsDto;
 import kg.biamino.projects.exception.TrainerNotFoundException;
 import kg.biamino.projects.model.TrainerSummary;
 import kg.biamino.projects.repository.TrainerSummaryRepository;
@@ -25,7 +25,6 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
         this.trainingRepository = trainingRepository;
     }
 
-
     @Override
     public void updateTrainerWorkload(TrainerWorkloadRequest trainerWorkloadRequest) {
         TrainerSummary trainerSummary = trainingRepository.findByUsernameAndTrainingDateAndDuration(trainerWorkloadRequest.getTrainerUsername(),
@@ -42,8 +41,6 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
             newTrainerSummary.setDuration(-trainerWorkloadRequest.getTrainingDuration());
             trainingRepository.save(newTrainerSummary);
         }
-
-
     }
 
     private static TrainerSummary getTrainerSummary(TrainerWorkloadRequest trainerWorkloadRequest) {

@@ -1,6 +1,6 @@
 package config;
 
-import kg.biamino.projects.JwtUtil;
+import kg.biamino.projects.utils.JwtUtil;
 import kg.biamino.projects.config.JwtAuthenticationManager;
 import kg.biamino.projects.config.JwtLogoutTokens;
 import kg.biamino.projects.model.AppUserDetails;

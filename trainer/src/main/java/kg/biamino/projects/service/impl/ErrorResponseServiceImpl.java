@@ -6,7 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
 
 
 @Slf4j
@@ -20,11 +25,11 @@ public class ErrorResponseServiceImpl implements ErrorResponseService {
         Map<String, List<String>> errors = new HashMap<>();
 
         message.getBindingResult().getFieldErrors().stream()
-                .filter(e-> e.getDefaultMessage()!=null)
+                .filter(e -> e.getDefaultMessage() != null)
                 .forEach(fieldError -> {
-                    if(!errors.containsKey(fieldError.getField())) {
-                        errors.computeIfAbsent(fieldError.getField(), k-> new ArrayList<>()).add(fieldError.getDefaultMessage());
-                    }else{
+                    if (!errors.containsKey(fieldError.getField())) {
+                        errors.computeIfAbsent(fieldError.getField(), k -> new ArrayList<>()).add(fieldError.getDefaultMessage());
+                    } else {
                         Objects.requireNonNull(errors.compute(fieldError.getField(), (k, v) -> v)).add(fieldError.getDefaultMessage());
                     }
 
@@ -36,7 +41,6 @@ public class ErrorResponseServiceImpl implements ErrorResponseService {
 
         return errorResponseBody;
     }
-
 
 
     @Override

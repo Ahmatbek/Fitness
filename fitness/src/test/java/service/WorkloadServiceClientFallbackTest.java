@@ -1,7 +1,7 @@
 package service;
 
-import kg.biamino.projects.ActionType;
-import kg.biamino.projects.TrainerWorkloadRequest;
+import kg.biamino.projects.enums.ActionType;
+import kg.biamino.projects.dto.TrainerWorkloadRequest;
 import kg.biamino.projects.exception.MicroServiceNotWorkingException;
 import kg.biamino.projects.service.impl.WorkloadServiceClientFallback;
 import org.junit.jupiter.api.Test;

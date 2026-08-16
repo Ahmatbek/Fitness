@@ -1,6 +1,6 @@
 package service;
 
-import kg.biamino.projects.JwtUtil;
+import kg.biamino.projects.utils.JwtUtil;
 import kg.biamino.projects.model.AppUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

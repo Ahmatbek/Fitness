@@ -1,15 +1,13 @@
 package kg.biamino.projects.service.impl;
 
-import kg.biamino.projects.TrainerSummaryResponse;
-import kg.biamino.projects.TrainerWorkloadRequest;
+import kg.biamino.projects.dto.TrainerSummaryResponse;
+import kg.biamino.projects.dto.TrainerWorkloadRequest;
 import kg.biamino.projects.exception.MicroServiceNotWorkingException;
 import kg.biamino.projects.service.WorkloadServiceClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 
 @Component
 @Slf4j

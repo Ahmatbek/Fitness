@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>kg.biamino.projects</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>shared-libs</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

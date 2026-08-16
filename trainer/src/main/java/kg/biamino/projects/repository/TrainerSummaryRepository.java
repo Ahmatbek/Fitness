@@ -14,9 +14,7 @@ import java.util.Optional;
 public interface TrainerSummaryRepository extends JpaRepository<TrainerSummary, Long> {
     List<TrainerSummary> findByUsername(String username);
 
-
     Optional<TrainerSummary> findByUsernameAndTrainingDateAndDuration(String username, LocalDate date, int duration);
-
 
     @Query("""
     SELECT new kg.biamino.projects.dto.MonthlyDurationDto( YEAR(t.trainingDate) , MONTH(t.trainingDate),  SUM(t.duration))

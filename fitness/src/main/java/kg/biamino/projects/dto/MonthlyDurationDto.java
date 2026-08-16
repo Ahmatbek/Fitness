@@ -1,13 +1,14 @@
 package kg.biamino.projects.dto;
 
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-@Builder
-@Setter
 @Getter
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MonthlyDurationDto {

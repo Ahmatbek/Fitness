@@ -10,9 +10,9 @@ spring:
       secret-key: ${SECRET_KEY}
       access-token-expiration: 900000
   datasource:
-    url: jdbc:postgresql://localhost:5432/fitness-local
-    username: postgres
-    password: password
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:

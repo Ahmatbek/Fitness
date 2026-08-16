@@ -2,7 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kg.biamino.projects.config.JwtLogoutTokens;
-import kg.biamino.projects.JwtUtil;
+import kg.biamino.projects.utils.JwtUtil;
 import kg.biamino.projects.controllers.AuthController;
 import kg.biamino.projects.dto.ChangePasswordDto;
 import kg.biamino.projects.dto.LoginRequestDto;

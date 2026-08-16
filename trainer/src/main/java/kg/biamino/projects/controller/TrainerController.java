@@ -1,8 +1,8 @@
 package kg.biamino.projects.controller;
 
 import jakarta.validation.Valid;
-import kg.biamino.projects.TrainerWorkloadRequest;
-import kg.biamino.projects.TrainerSummaryResponse;
+import kg.biamino.projects.dto.TrainerWorkloadRequest;
+import kg.biamino.projects.dto.TrainerSummaryResponse;
 import kg.biamino.projects.service.TrainerSummaryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

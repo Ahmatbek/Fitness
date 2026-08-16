@@ -1,7 +1,7 @@
 package service;
 
 import kg.biamino.projects.config.BruteForceProtectionService;
-import kg.biamino.projects.JwtUtil;
+import kg.biamino.projects.utils.JwtUtil;
 import kg.biamino.projects.dto.LoginRequestDto;
 import kg.biamino.projects.dto.TokenResponseDto;
 import kg.biamino.projects.exception.UserInactiveException;

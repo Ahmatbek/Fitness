@@ -1,7 +1,7 @@
 package service;
 
-import kg.biamino.projects.ActionType;
-import kg.biamino.projects.TrainerWorkloadRequest;
+import kg.biamino.projects.enums.ActionType;
+import kg.biamino.projects.dto.TrainerWorkloadRequest;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.mapper.impl.TrainingMapper;
 import kg.biamino.projects.model.Trainer;

@@ -2,6 +2,7 @@ package kg.biamino.projects.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -13,13 +14,13 @@ import org.slf4j.MDC;
 
 @Component
 public class TransactionLoggingInterceptor implements HandlerInterceptor {
-    private Logger log =  LoggerFactory.getLogger(TransactionLoggingInterceptor.class.getName());
+    private final Logger log = LoggerFactory.getLogger(TransactionLoggingInterceptor.class.getName());
     private static final String TRANSACTION_ID = "transactionId";
 
     @Override
     public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response,
-                             Object handler) throws Exception {
+                             @NonNull HttpServletResponse response,
+                             @NonNull Object handler) throws Exception {
         String transactionId = request.getHeader(TRANSACTION_ID);
 
         if (transactionId == null || transactionId.isBlank()) {
@@ -34,16 +35,13 @@ public class TransactionLoggingInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request,
-                                 HttpServletResponse response,
-                                 Object handler,
-                                 Exception ex) throws Exception {
-        if (ex != null) {
-            log.warn("Response: {} {} -> {} ({})", request.getMethod(), request.getRequestURI(),
-                    response.getStatus(), ex.getMessage());
-        } else {
-            log.info("Response: {} {} -> {}", request.getMethod(), request.getRequestURI(), response.getStatus());
-        }
+    public void afterCompletion(@NonNull HttpServletRequest request,
+                                @NonNull HttpServletResponse response,
+                                @NonNull Object handler,
+                                Exception ex) throws Exception {
+        if (ex != null) log.warn("Response: {} {} -> {} ({})", request.getMethod(), request.getRequestURI(), response.getStatus(), ex.getMessage());
+        else log.info("Response: {} {} -> {}", request.getMethod(), request.getRequestURI(), response.getStatus());
+
         MDC.remove(TRANSACTION_ID);
     }
 

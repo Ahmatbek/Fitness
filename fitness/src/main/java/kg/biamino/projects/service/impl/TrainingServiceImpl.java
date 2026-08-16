@@ -2,8 +2,8 @@ package kg.biamino.projects.service.impl;
 
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import kg.biamino.projects.ActionType;
-import kg.biamino.projects.TrainerWorkloadRequest;
+import kg.biamino.projects.enums.ActionType;
+import kg.biamino.projects.dto.TrainerWorkloadRequest;
 import kg.biamino.projects.dto.TrainingDto;
 import kg.biamino.projects.mapper.impl.TrainingMapper;
 import kg.biamino.projects.model.Training;
@@ -72,6 +72,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    @Transactional
     public void deleteTrainingById(Long id) {
         Training training = getTrainingById(id);
         if(training != null){
