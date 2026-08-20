@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: "trainer"
+
+  security:
+    jwt:
+      secret-key: ${SECRET_KEY}
+      access-token-expiration: 900000
+  datasource:
+    url: jdbc:h2:mem:trainerdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+server:
+  port: 8082
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] txId=%X{transactionId:-} %logger{36} - %msg%n"
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    preferIpAddress: true
+
+
+
