@@ -34,5 +34,4 @@ public interface TrainerService {
     @Transactional
     List<Trainer> updateTraineeTrainersList(AuthUserDto authUserDto, List<TrainerDto> trainerDtos, Long id);
 
-    ResponseEntity<TrainerSummaryResponse> getSummaryByUsername(String username);
 }

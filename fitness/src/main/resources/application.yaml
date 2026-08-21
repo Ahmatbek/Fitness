@@ -46,6 +46,13 @@ spring:
         disable-time-limiter: true
         disable-thread-pool: true
 
+  activemq:
+    broker-url: tcp://${ACTIVEMQ_HOST}:${ACTIVEMQ_PORT}
+    user: ${ACTIVEMQ_BROKER_USER}
+    password: ${ACTIVEMQ_BROKER_PASSWORD}
+    packages:
+      trust-all: true
+
 
 management:
   endpoints:

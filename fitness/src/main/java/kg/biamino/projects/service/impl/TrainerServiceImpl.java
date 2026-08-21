@@ -3,7 +3,6 @@ package kg.biamino.projects.service.impl;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import jakarta.persistence.criteria.Predicate;
-import kg.biamino.projects.dto.TrainerSummaryResponse;
 import kg.biamino.projects.dto.NewUserCredentials;
 import kg.biamino.projects.dto.TrainerDto;
 import kg.biamino.projects.dto.TrainerTraineesListDto;
@@ -14,7 +13,6 @@ import kg.biamino.projects.dto.TrainerTrainingsDto;
 import kg.biamino.projects.exception.AuthorizationException;
 import kg.biamino.projects.dto.TrainingsDisplayInfoTrainer;
 import kg.biamino.projects.dto.TraineeUsernameDto;
-import kg.biamino.projects.exception.UserNotFoundException;
 import kg.biamino.projects.model.Trainee;
 import kg.biamino.projects.dto.UpdateTrainerDto;
 import kg.biamino.projects.model.Trainer;
@@ -26,11 +24,9 @@ import kg.biamino.projects.repository.TrainingRepository;
 import kg.biamino.projects.service.TrainerService;
 import kg.biamino.projects.service.TrainingTypeService;
 import kg.biamino.projects.service.UserService;
-import kg.biamino.projects.service.WorkloadServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,15 +47,12 @@ public class TrainerServiceImpl implements TrainerService {
     private final TrainingTypeService trainingTypeService;
     private TraineeRepository traineeRepository;
     private final UserService userService;
-    private final WorkloadServiceClient workloadServiceClient;
 
     @Autowired
     public  TrainerServiceImpl(UserService userService,
-                               TrainingTypeService trainingTypeService,
-                               WorkloadServiceClient workloadServiceClient) {
+                               TrainingTypeService trainingTypeService) {
         this.userService = userService;
         this.trainingTypeService = trainingTypeService;
-        this.workloadServiceClient = workloadServiceClient;
 
     }
 
@@ -264,10 +257,5 @@ public class TrainerServiceImpl implements TrainerService {
                 .build();
     }
 
-    @Override
-    public ResponseEntity<TrainerSummaryResponse> getSummaryByUsername(String username) {
-        Trainer trainer = trainerRepository.findByUserUsername(username).orElseThrow(()-> new UserNotFoundException("trainer not found"));
-        return workloadServiceClient.getMonthlyDuration(trainer.getUser().getUsername());
-    }
 
 }

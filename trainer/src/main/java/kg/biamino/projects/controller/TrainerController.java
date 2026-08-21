@@ -17,14 +17,9 @@ public class TrainerController {
     }
 
 
-    @PostMapping("/workload")
-    public ResponseEntity<Void> acceptWorkload(@RequestBody @Valid TrainerWorkloadRequest request) {
-        trainerService.updateTrainerWorkload(request);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/{username}/summary")
     public ResponseEntity<TrainerSummaryResponse> getSummary(@PathVariable String username) {
         return ResponseEntity.ok(trainerService.getMonthlySummaryByTrainerUsername(username));
+
     }
 }

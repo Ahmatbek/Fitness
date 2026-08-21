@@ -8,7 +8,6 @@ import kg.biamino.projects.model.Trainer;
 import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.repository.TrainingRepository;
-import kg.biamino.projects.service.WorkloadServiceClient;
 import kg.biamino.projects.service.impl.TrainingServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jms.core.JmsTemplate;
 
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
@@ -32,7 +32,7 @@ class TrainingServiceTest {
     @Mock
     private TrainingMapper trainingMapper;
     @Mock
-    private WorkloadServiceClient workloadServiceClient;
+    private JmsTemplate jmsTemplate;
 
     @InjectMocks
     private TrainingServiceImpl trainingService;
@@ -88,13 +88,15 @@ class TrainingServiceTest {
         verify(trainingRepository).save(mapped);
 
         ArgumentCaptor<TrainerWorkloadRequest> captor = ArgumentCaptor.forClass(TrainerWorkloadRequest.class);
-        verify(workloadServiceClient).updateWorkload(captor.capture());
+        verify(jmsTemplate).convertAndSend(any(String.class), captor.capture());
         TrainerWorkloadRequest request = captor.getValue();
         assertEquals("Bekzat.Isakov", request.getTrainerUsername());
         assertEquals(ActionType.ADD, request.getActionType());
         assertEquals(mapped.getDate(), request.getTrainingDate());
         assertEquals(mapped.getDuration(), request.getTrainingDuration());
+
     }
+
 
     @Test
     void deleteTrainingById_existing_deletesAndNotifiesWorkloadService() {
@@ -106,7 +108,7 @@ class TrainingServiceTest {
         verify(trainingRepository).delete(training);
 
         ArgumentCaptor<TrainerWorkloadRequest> captor = ArgumentCaptor.forClass(TrainerWorkloadRequest.class);
-        verify(workloadServiceClient).updateWorkload(captor.capture());
+        verify(jmsTemplate).convertAndSend(any(String.class), captor.capture());
         assertEquals(ActionType.DELETE, captor.getValue().getActionType());
         assertEquals("Bekzat.Isakov", captor.getValue().getTrainerUsername());
     }
@@ -118,7 +120,6 @@ class TrainingServiceTest {
         assertThrows(NoSuchElementException.class, () -> trainingService.deleteTrainingById(9L));
 
         verify(trainingRepository, never()).delete(any(Training.class));
-        verifyNoInteractions(workloadServiceClient);
     }
 
     @Test

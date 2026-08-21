@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TrainerWorkloadRequest {
+public class TrainerWorkloadRequest implements Serializable {
     private String trainerUsername;
     private String trainerFirstName;
     private String trainerLastName;
