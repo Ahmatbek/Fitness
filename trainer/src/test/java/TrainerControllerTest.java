@@ -48,6 +48,4 @@ public class TrainerControllerTest {
 
         verify(trainerSummaryService).getMonthlySummaryByTrainerUsername("Aidana.Toktosunova");
     }
-
-
 }

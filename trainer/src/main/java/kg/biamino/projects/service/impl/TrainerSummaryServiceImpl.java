@@ -12,12 +12,12 @@ import kg.biamino.projects.repository.TrainerSummaryRepository;
 import kg.biamino.projects.service.TrainerSummaryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,21 +25,29 @@ import java.util.stream.Collectors;
 public class TrainerSummaryServiceImpl implements TrainerSummaryService {
 
     private final TrainerSummaryRepository trainingRepository;
+    private final Validator validator;
 
-    public TrainerSummaryServiceImpl(TrainerSummaryRepository trainingRepository) {
+    public TrainerSummaryServiceImpl(TrainerSummaryRepository trainingRepository, Validator validator) {
         this.trainingRepository = trainingRepository;
+        this.validator = validator;
     }
 
     @Override
     @JmsListener(destination = "training-queue", containerFactory = "jmsListenerContainerFactory")
-    public void updateTrainerWorkload(TrainerWorkloadRequest trainerWorkloadRequest) throws IllegalArgumentException {
-        validatingIncomingDto(trainerWorkloadRequest);
-        if (trainerWorkloadRequest.getActionType().equals(ActionType.ADD)) {
+    public void updateTrainerWorkload(TrainerWorkloadRequest trainerWorkloadRequest) {
+        Set<ConstraintViolation<TrainerWorkloadRequest>> violations = validator.validate(trainerWorkloadRequest);
+        if (!violations.isEmpty()) {
+            String message = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining(", "));
+            throw new IllegalArgumentException(message);
+        }
+        if (ActionType.ADD.equals(trainerWorkloadRequest.getActionType())) {
             TrainerSummary newTrainerSummary = getTrainerSummary(trainerWorkloadRequest);
             log.info("Saving adding trainer's workload {}", newTrainerSummary);
             trainingRepository.save(newTrainerSummary);
 
-        } else if (trainerWorkloadRequest.getActionType().equals(ActionType.DELETE)) {
+        } else if (ActionType.DELETE.equals(trainerWorkloadRequest.getActionType())) {
             TrainerSummary newTrainerSummary = getTrainerSummary(trainerWorkloadRequest);
             newTrainerSummary.setDuration(-trainerWorkloadRequest.getTrainingDuration());
             log.info("Saving deletion trainer's workload {}", newTrainerSummary);
@@ -63,24 +71,24 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
         TrainerSummary trainerSummary = trainingRepository.findByUsername(username)
                 .stream()
                 .findFirst()
-                .orElseThrow(()-> new TrainerNotFoundException("Trainer not found"));
+                .orElseThrow(() -> new TrainerNotFoundException("Trainer not found"));
         log.info("Getting monthly summary for trainer {}", username);
         List<MonthlyDurationDto> summary = trainingRepository.getMonthlySummary(username);
         Map<Integer, List<MonthlyDurationDto>> map = summary
                 .stream()
                 .collect(Collectors.groupingBy(MonthlyDurationDto::getYear));
 
-       List<YearsDto> years =  map.entrySet()
-               .stream()
-               .map(entry-> YearsDto.builder()
-                       .year(entry.getKey())
-                       .monthDtoList(entry.getValue().stream()
-                               .filter(e-> e.getTotalDuration() != 0)
-                                      .map(e-> new MonthDto(e.getMonth(), e.getTotalDuration()))
-                                      .toList())
-                              .build())
-               .filter(yearDto -> !yearDto.getMonthDtoList().isEmpty())
-               .toList();
+        List<YearsDto> years = map.entrySet()
+                .stream()
+                .map(entry -> YearsDto.builder()
+                        .year(entry.getKey())
+                        .monthDtoList(entry.getValue().stream()
+                                .filter(e -> e.getTotalDuration() != 0)
+                                .map(e -> new MonthDto(e.getMonth(), e.getTotalDuration()))
+                                .toList())
+                        .build())
+                .filter(yearDto -> !yearDto.getMonthDtoList().isEmpty())
+                .toList();
 
         TrainerSummaryResponse trainerSummaryResponse = new TrainerSummaryResponse();
         trainerSummaryResponse.setFirstName(trainerSummary.getFirstName());
@@ -94,14 +102,4 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
         return trainerSummaryResponse;
     }
 
-    private void validatingIncomingDto(TrainerWorkloadRequest trainerWorkloadRequest) throws IllegalArgumentException {
-        if (trainerWorkloadRequest.getTrainerUsername() == null) throw new IllegalArgumentException("Trainer username is null");
-        if(trainerWorkloadRequest.getTrainingDate() == null) throw new IllegalArgumentException("Training date is null");
-        if(trainerWorkloadRequest.getActionType()==null) throw new IllegalArgumentException("Action type is null");
-        if(trainerWorkloadRequest.getTrainerFirstName()==null) throw new IllegalArgumentException("Trainer first name is null");
-        if(trainerWorkloadRequest.getTrainerLastName()==null) throw new IllegalArgumentException("Trainer last name is null");
-        if(trainerWorkloadRequest.getTrainingDuration()<=0) throw new IllegalArgumentException("Training duration is null");
-        if(trainerWorkloadRequest.getTrainingDate().isBefore(LocalDate.now())) throw new IllegalArgumentException("Training date is in the past");
-
-    }
 }

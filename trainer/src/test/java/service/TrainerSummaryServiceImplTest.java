@@ -10,21 +10,20 @@ import kg.biamino.projects.exception.TrainerNotFoundException;
 import kg.biamino.projects.model.TrainerSummary;
 import kg.biamino.projects.repository.TrainerSummaryRepository;
 import kg.biamino.projects.service.impl.TrainerSummaryServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,8 +33,13 @@ class TrainerSummaryServiceImplTest {
     @Mock
     private TrainerSummaryRepository trainerSummaryRepository;
 
-    @InjectMocks
     private TrainerSummaryServiceImpl trainerSummaryService;
+
+    @BeforeEach
+    void setUp() {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        trainerSummaryService = new TrainerSummaryServiceImpl(trainerSummaryRepository, validator);
+    }
 
     private TrainerWorkloadRequest workloadRequest(ActionType actionType) {
         TrainerWorkloadRequest request = new TrainerWorkloadRequest();

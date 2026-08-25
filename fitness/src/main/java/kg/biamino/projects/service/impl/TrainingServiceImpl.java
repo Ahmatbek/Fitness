@@ -51,16 +51,13 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional
     public Training createTraining( TrainingDto trainingDto){
-        validationInput(trainingDto);
         log.info("Creating training {}", trainingDto);
         Training training = trainingMapper.toEntity(trainingDto);
 
         User trainer = training.getTrainer().getUser();
 
         TrainerWorkloadRequest trainerWorkloadRequest = createTrainerWorkloadRequest(training, trainer, ActionType.ADD);
-
         jmsTemplate.convertAndSend("training-queue", trainerWorkloadRequest);
-
         return trainingRepository.save(training);
     }
 
@@ -91,24 +88,4 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
 
-    private void validationInput(TrainingDto trainingDto) {
-        nullChecker(trainingDto, "trainingDto");
-        nullChecker(trainingDto.getTrainingName(), "trainingDto.trainingName");
-        nullChecker(trainingDto.getTrainingType(), "trainingDto.trainingType");
-        nullChecker(trainingDto.getTrainerUsername(), "trainingDto.trainerId");
-        nullChecker(trainingDto.getTraineeUsername(), "trainingDto.traineeId");
-        nullChecker(trainingDto.getTrainingStart(), "trainingDto.trainingStart");
-
-        integerChecker(trainingDto.getDuration(), "trainingDto.duration");
-
-        if(trainingDto.getTrainingName().isBlank()) {
-            throw new IllegalArgumentException("TrainingDto name is blank");
-        }
-        if(trainingDto.getTrainingStart().isBefore(LocalDate.now())){
-            throw new IllegalArgumentException("trainingStart start is cant be in the past");
-        }
-
-
-
-    }
 }
