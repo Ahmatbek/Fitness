@@ -10,9 +10,9 @@ import kg.biamino.projects.model.Training;
 import kg.biamino.projects.model.User;
 import kg.biamino.projects.repository.TrainingRepository;
 import kg.biamino.projects.service.TrainingService;
-import kg.biamino.projects.service.WorkloadServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +29,14 @@ import static kg.biamino.projects.utils.ValidationInput.nullChecker;
 public class TrainingServiceImpl implements TrainingService {
     private final TrainingRepository trainingRepository;
     private final TrainingMapper trainingMapper;
-    private final WorkloadServiceClient workloadServiceClient;
+    private final JmsTemplate jmsTemplate;
 
 
     @Autowired
-    public TrainingServiceImpl( TrainingMapper trainingMapper, TrainingRepository trainingRepository, WorkloadServiceClient workloadServiceClient) {
+    public TrainingServiceImpl( TrainingMapper trainingMapper, TrainingRepository trainingRepository, JmsTemplate jmsTemplate) {
         this.trainingMapper = trainingMapper;
         this.trainingRepository = trainingRepository;
-        this.workloadServiceClient = workloadServiceClient;
+        this.jmsTemplate = jmsTemplate;
     }
 
 
@@ -51,12 +51,17 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional
     public Training createTraining( TrainingDto trainingDto){
-        validationInput(trainingDto);
         log.info("Creating training {}", trainingDto);
         Training training = trainingMapper.toEntity(trainingDto);
 
         User trainer = training.getTrainer().getUser();
 
+        TrainerWorkloadRequest trainerWorkloadRequest = createTrainerWorkloadRequest(training, trainer, ActionType.ADD);
+        jmsTemplate.convertAndSend("training-queue", trainerWorkloadRequest);
+        return trainingRepository.save(training);
+    }
+
+    private static TrainerWorkloadRequest createTrainerWorkloadRequest(Training training, User trainer, ActionType actionType) {
         TrainerWorkloadRequest trainerWorkloadRequest = new TrainerWorkloadRequest();
         trainerWorkloadRequest.setTrainingDate(training.getDate());
         trainerWorkloadRequest.setTrainingDuration(training.getDuration());
@@ -64,11 +69,8 @@ public class TrainingServiceImpl implements TrainingService {
         trainerWorkloadRequest.setActive(trainer.getIsActive());
         trainerWorkloadRequest.setTrainerFirstName(trainer.getFirstName());
         trainerWorkloadRequest.setTrainerLastName(trainer.getLastName());
-        trainerWorkloadRequest.setActionType(ActionType.ADD);
-
-        workloadServiceClient.updateWorkload(trainerWorkloadRequest);
-
-        return trainingRepository.save(training);
+        trainerWorkloadRequest.setActionType(actionType);
+        return trainerWorkloadRequest;
     }
 
     @Override
@@ -76,40 +78,14 @@ public class TrainingServiceImpl implements TrainingService {
     public void deleteTrainingById(Long id) {
         Training training = getTrainingById(id);
         if(training != null){
-            trainingRepository.delete(training);
 
             User user = training.getTrainer().getUser();
-            TrainerWorkloadRequest trainerWorkloadRequest = new TrainerWorkloadRequest();
-            trainerWorkloadRequest.setTrainingDate(training.getDate());
-            trainerWorkloadRequest.setTrainingDuration(training.getDuration());
-            trainerWorkloadRequest.setTrainerLastName(user.getLastName());
-            trainerWorkloadRequest.setTrainerUsername(user.getUsername());
-            trainerWorkloadRequest.setActionType(ActionType.DELETE);
-            trainerWorkloadRequest.setTrainerFirstName(user.getFirstName());
-            trainerWorkloadRequest.setActive(user.getIsActive());
-            workloadServiceClient.updateWorkload(trainerWorkloadRequest);
+            TrainerWorkloadRequest trainerWorkloadRequest = createTrainerWorkloadRequest(training, user, ActionType.DELETE);
+
+            jmsTemplate.convertAndSend("training-queue", trainerWorkloadRequest);
+            trainingRepository.delete(training);
         }
     }
 
 
-    private void validationInput(TrainingDto trainingDto) {
-        nullChecker(trainingDto, "trainingDto");
-        nullChecker(trainingDto.getTrainingName(), "trainingDto.trainingName");
-        nullChecker(trainingDto.getTrainingType(), "trainingDto.trainingType");
-        nullChecker(trainingDto.getTrainerUsername(), "trainingDto.trainerId");
-        nullChecker(trainingDto.getTraineeUsername(), "trainingDto.traineeId");
-        nullChecker(trainingDto.getTrainingStart(), "trainingDto.trainingStart");
-
-        integerChecker(trainingDto.getDuration(), "trainingDto.duration");
-
-        if(trainingDto.getTrainingName().isBlank()) {
-            throw new IllegalArgumentException("TrainingDto name is blank");
-        }
-        if(trainingDto.getTrainingStart().isBefore(LocalDate.now())){
-            throw new IllegalArgumentException("trainingStart start is cant be in the past");
-        }
-
-
-
-    }
 }

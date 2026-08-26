@@ -83,14 +83,4 @@ public class TrainerController{
         return ResponseEntity.ok(trainerService.getTrainingsByCriteria(traineeTrainingsDto));
     }
 
-    @GetMapping("/summary")
-    @Operation(summary = "get trainer profile by username")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successfully found"),
-            @ApiResponse(responseCode = "401", description = "authentication failed"),
-            @ApiResponse(responseCode = "404", description = "trainer with this username doesnt exist")
-    })
-    public ResponseEntity<?> getSummaryByUsername(@Parameter(description = "trainer's username") @RequestParam(name="username") String username) {
-        return trainerService.getSummaryByUsername(username);
-    }
 }

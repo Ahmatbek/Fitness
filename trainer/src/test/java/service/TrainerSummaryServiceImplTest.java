@@ -10,22 +10,20 @@ import kg.biamino.projects.exception.TrainerNotFoundException;
 import kg.biamino.projects.model.TrainerSummary;
 import kg.biamino.projects.repository.TrainerSummaryRepository;
 import kg.biamino.projects.service.impl.TrainerSummaryServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,8 +33,13 @@ class TrainerSummaryServiceImplTest {
     @Mock
     private TrainerSummaryRepository trainerSummaryRepository;
 
-    @InjectMocks
     private TrainerSummaryServiceImpl trainerSummaryService;
+
+    @BeforeEach
+    void setUp() {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        trainerSummaryService = new TrainerSummaryServiceImpl(trainerSummaryRepository, validator);
+    }
 
     private TrainerWorkloadRequest workloadRequest(ActionType actionType) {
         TrainerWorkloadRequest request = new TrainerWorkloadRequest();
@@ -44,7 +47,7 @@ class TrainerSummaryServiceImplTest {
         request.setTrainerFirstName("Bekzat");
         request.setTrainerLastName("Isakov");
         request.setActive(true);
-        request.setTrainingDate(LocalDate.of(2026, 8, 10));
+        request.setTrainingDate(LocalDate.of(2026, 8, 25));
         request.setTrainingDuration(60);
         request.setActionType(actionType);
         return request;
@@ -53,9 +56,6 @@ class TrainerSummaryServiceImplTest {
     @Test
     void updateTrainerWorkload_add_savesNewRecord() {
         TrainerWorkloadRequest request = workloadRequest(ActionType.ADD);
-        when(trainerSummaryRepository.findByUsernameAndTrainingDateAndDuration(
-                eq("Bekzat.Isakov"), eq(request.getTrainingDate()), eq(60)))
-                .thenReturn(Optional.empty());
 
         trainerSummaryService.updateTrainerWorkload(request);
 
@@ -70,29 +70,12 @@ class TrainerSummaryServiceImplTest {
     @Test
     void updateTrainerWorkload_deleteExistingRecord_savesNegativeDuration() {
         TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
-        TrainerSummary existing = new TrainerSummary();
-        existing.setUsername("Bekzat.Isakov");
-        when(trainerSummaryRepository.findByUsernameAndTrainingDateAndDuration(
-                eq("Bekzat.Isakov"), eq(request.getTrainingDate()), eq(60)))
-                .thenReturn(Optional.of(existing));
 
         trainerSummaryService.updateTrainerWorkload(request);
 
         ArgumentCaptor<TrainerSummary> captor = ArgumentCaptor.forClass(TrainerSummary.class);
         verify(trainerSummaryRepository).save(captor.capture());
         assertEquals(-60, captor.getValue().getDuration());
-    }
-
-    @Test
-    void updateTrainerWorkload_deleteNoExistingRecord_doesNothing() {
-        TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
-        when(trainerSummaryRepository.findByUsernameAndTrainingDateAndDuration(
-                eq("Bekzat.Isakov"), eq(request.getTrainingDate()), eq(60)))
-                .thenReturn(Optional.empty());
-
-        trainerSummaryService.updateTrainerWorkload(request);
-
-        verify(trainerSummaryRepository, never()).save(any());
     }
 
     @Test
@@ -128,5 +111,57 @@ class TrainerSummaryServiceImplTest {
 
         assertThrows(TrainerNotFoundException.class,
                 () -> trainerSummaryService.getMonthlySummaryByTrainerUsername("unknown"));
+    }
+
+
+    @Test
+    void updateTrainerWorkload_deletePastTraining_throwsIllegalArgumentException() {
+        TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
+        request.setTrainingDate(LocalDate.of(2025, 8, 10));
+
+        assertThrows(IllegalArgumentException.class, ()-> trainerSummaryService.updateTrainerWorkload(request));
+    }
+
+    @Test
+    void updateTrainerWorkload_deleteTrainingWithZeroDuration_throwsIllegalArgumentException() {
+        TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
+        request.setTrainingDuration(0);
+
+        assertThrows(IllegalArgumentException.class, ()-> trainerSummaryService.updateTrainerWorkload(request));
+    }
+    @Test
+    void updateTrainerWorkload_deleteTrainingWithNullUsername_throwsIllegalArgumentException() {
+        TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
+        request.setTrainerUsername(null);
+
+        assertThrows(IllegalArgumentException.class, ()-> trainerSummaryService.updateTrainerWorkload(request));
+    }
+
+    @Test
+    void updateTrainerWorkload_deleteTrainingWithNullFirstName_throwsIllegalArgumentException() {
+        TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
+        request.setTrainerFirstName(null);
+        assertThrows(IllegalArgumentException.class, ()-> trainerSummaryService.updateTrainerWorkload(request));
+    }
+
+    @Test
+    void updateTrainerWorkload_deleteTrainingWithNullLastName_throwsIllegalArgumentException() {
+        TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
+        request.setTrainerLastName(null);
+        assertThrows(IllegalArgumentException.class, ()-> trainerSummaryService.updateTrainerWorkload(request));
+    }
+
+    @Test
+    void updateTrainerWorkload_deleteTrainingWithNullActionType_throwsIllegalArgumentException() {
+        TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
+        request.setActionType(null);
+        assertThrows(IllegalArgumentException.class, ()-> trainerSummaryService.updateTrainerWorkload(request));
+    }
+    
+    @Test
+    void updateTrainerWorkload_deleteTrainingWithNullDate_throwsIllegalArgumentException() {
+        TrainerWorkloadRequest request = workloadRequest(ActionType.DELETE);
+        request.setTrainingDate(null);
+        assertThrows(IllegalArgumentException.class, () -> trainerSummaryService.updateTrainerWorkload(request));
     }
 }
