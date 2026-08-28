@@ -11,6 +11,8 @@ import kg.biamino.projects.model.User;
 import kg.biamino.projects.repository.TrainingRepository;
 import kg.biamino.projects.service.TrainingService;
 import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -57,7 +59,10 @@ public class TrainingServiceImpl implements TrainingService {
         User trainer = training.getTrainer().getUser();
 
         TrainerWorkloadRequest trainerWorkloadRequest = createTrainerWorkloadRequest(training, trainer, ActionType.ADD);
-        jmsTemplate.convertAndSend("training-queue", trainerWorkloadRequest);
+        jmsTemplate.convertAndSend("training-queue", trainerWorkloadRequest, message -> {
+            message.setStringProperty("transactionId", MDC.get("transactionId"));
+            return message;
+        });
         return trainingRepository.save(training);
     }
 

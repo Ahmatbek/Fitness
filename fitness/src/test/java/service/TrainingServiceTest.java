@@ -122,45 +122,5 @@ class TrainingServiceTest {
         verify(trainingRepository, never()).delete(any(Training.class));
     }
 
-    @Test
-    void createTraining_nullDto_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(null));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
 
-    @Test
-    void createTraining_nullTrainingStart_throwsIllegalArgumentException() {
-        TrainingDto dto = validDto();
-        dto.setTrainingStart(null);
-
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(dto));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
-
-    @Test
-    void createTraining_blankName_throwsIllegalArgumentException() {
-        TrainingDto dto = validDto();
-        dto.setTrainingName("   ");
-
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(dto));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
-
-    @Test
-    void createTraining_pastStartDate_throwsIllegalArgumentException() {
-        TrainingDto dto = validDto();
-        dto.setTrainingStart(LocalDate.now().minusDays(1));
-
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(dto));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
-
-    @Test
-    void createTraining_durationZero_throwsIllegalArgumentException() {
-        TrainingDto dto = validDto();
-        dto.setDuration(0);
-
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(dto));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
 }

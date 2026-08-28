@@ -6,11 +6,10 @@ spring:
     jwt:
       secret-key: ${SECRET_KEY}
       access-token-expiration: 900000
-  datasource:
-    url: jdbc:h2:mem:trainerdb;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=admin
+      auto-index-creation: true
   jpa:
     hibernate:
       ddl-auto: update
