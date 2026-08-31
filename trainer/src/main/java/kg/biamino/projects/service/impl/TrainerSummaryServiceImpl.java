@@ -1,6 +1,6 @@
 package kg.biamino.projects.service.impl;
 
-import kg.biamino.projects.enums.ActionType;
+
 import kg.biamino.projects.dto.TrainerWorkloadRequest;
 import kg.biamino.projects.dto.MonthDto;
 import kg.biamino.projects.dto.TrainerSummaryResponse;
@@ -131,10 +131,8 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
         trainerSummaryResponse.setLastName(trainerSummary.getLastName());
         trainerSummaryResponse.setUsername(trainerSummary.getUsername());
         trainerSummaryResponse.setStatus(trainerSummary.getStatus());
-        trainerSummaryResponse.setYearsDtoList(trainerSummary.getYears()
-                                                            .stream()
-                                                            .map(this::mapper)
-                                                            .toList());
+        trainerSummaryResponse.setYearsDtoList(trainerSummary.getYears().stream().map(this::mapper).toList());
+
         return trainerSummaryResponse;
     }
     private YearsDto mapper(Years years){
@@ -152,11 +150,9 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
     }
 
     private void deleteOrAddDuration(Month m, int duration, TrainerWorkloadRequest trainerWorkloadRequest, AtomicReference<Boolean> isExistingMonth){
-        if(ActionType.DELETE.equals(trainerWorkloadRequest.getActionType())){
-            m.setDuration(Math.max((m.getDuration() - duration), 0));
-        }
-        else if(ActionType.ADD.equals(trainerWorkloadRequest.getActionType())){
-            m.setDuration(m.getDuration() + duration);
+        switch (trainerWorkloadRequest.getActionType()) {
+            case DELETE -> m.setDuration(Math.max((m.getDuration() - duration), 0));
+            case ADD -> m.setDuration(m.getDuration() + duration);
         }
         isExistingMonth.set(true);
     }

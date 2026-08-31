@@ -18,11 +18,10 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+
 import java.util.NoSuchElementException;
 
-import static kg.biamino.projects.utils.ValidationInput.integerChecker;
-import static kg.biamino.projects.utils.ValidationInput.nullChecker;
+
 
 @Service
 @Slf4j
@@ -44,7 +43,6 @@ public class TrainingServiceImpl implements TrainingService {
 
 
     @Override
-    @Transactional(readOnly = true)
     public Training getTrainingById(Long id) {
         log.info("Getting training by id {}", id);
         return trainingRepository.findById(id).orElseThrow(()-> new NoSuchElementException("Training with id " + id + " not found"));
@@ -87,7 +85,10 @@ public class TrainingServiceImpl implements TrainingService {
             User user = training.getTrainer().getUser();
             TrainerWorkloadRequest trainerWorkloadRequest = createTrainerWorkloadRequest(training, user, ActionType.DELETE);
 
-            jmsTemplate.convertAndSend("training-queue", trainerWorkloadRequest);
+            jmsTemplate.convertAndSend("training-queue", trainerWorkloadRequest, message -> {
+                message.setStringProperty("transactionId", MDC.get("transactionId"));
+                return message;
+            });
             trainingRepository.delete(training);
         }
     }
