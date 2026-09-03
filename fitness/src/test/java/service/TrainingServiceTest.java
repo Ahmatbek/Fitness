@@ -20,8 +20,11 @@ import org.springframework.jms.core.JmsTemplate;
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -88,7 +91,8 @@ class TrainingServiceTest {
         verify(trainingRepository).save(mapped);
 
         ArgumentCaptor<TrainerWorkloadRequest> captor = ArgumentCaptor.forClass(TrainerWorkloadRequest.class);
-        verify(jmsTemplate).convertAndSend(any(String.class), captor.capture());
+        ArgumentCaptor<org.springframework.jms.core.MessagePostProcessor> lambdaCaptor = ArgumentCaptor.forClass(org.springframework.jms.core.MessagePostProcessor.class);
+        verify(jmsTemplate).convertAndSend(any(String.class), captor.capture(), lambdaCaptor.capture());
         TrainerWorkloadRequest request = captor.getValue();
         assertEquals("Bekzat.Isakov", request.getTrainerUsername());
         assertEquals(ActionType.ADD, request.getActionType());
@@ -108,7 +112,8 @@ class TrainingServiceTest {
         verify(trainingRepository).delete(training);
 
         ArgumentCaptor<TrainerWorkloadRequest> captor = ArgumentCaptor.forClass(TrainerWorkloadRequest.class);
-        verify(jmsTemplate).convertAndSend(any(String.class), captor.capture());
+        ArgumentCaptor<org.springframework.jms.core.MessagePostProcessor> lambdaCaptor = ArgumentCaptor.forClass(org.springframework.jms.core.MessagePostProcessor.class);
+        verify(jmsTemplate).convertAndSend(any(String.class), captor.capture(), lambdaCaptor.capture());
         assertEquals(ActionType.DELETE, captor.getValue().getActionType());
         assertEquals("Bekzat.Isakov", captor.getValue().getTrainerUsername());
     }
@@ -122,45 +127,5 @@ class TrainingServiceTest {
         verify(trainingRepository, never()).delete(any(Training.class));
     }
 
-    @Test
-    void createTraining_nullDto_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(null));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
 
-    @Test
-    void createTraining_nullTrainingStart_throwsIllegalArgumentException() {
-        TrainingDto dto = validDto();
-        dto.setTrainingStart(null);
-
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(dto));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
-
-    @Test
-    void createTraining_blankName_throwsIllegalArgumentException() {
-        TrainingDto dto = validDto();
-        dto.setTrainingName("   ");
-
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(dto));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
-
-    @Test
-    void createTraining_pastStartDate_throwsIllegalArgumentException() {
-        TrainingDto dto = validDto();
-        dto.setTrainingStart(LocalDate.now().minusDays(1));
-
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(dto));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
-
-    @Test
-    void createTraining_durationZero_throwsIllegalArgumentException() {
-        TrainingDto dto = validDto();
-        dto.setDuration(0);
-
-        assertThrows(IllegalArgumentException.class, () -> trainingService.createTraining(dto));
-        verifyNoInteractions(trainingMapper, trainingRepository);
-    }
 }

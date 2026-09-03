@@ -1,5 +1,7 @@
 package kg.biamino.projects.dto;
 
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.experimental.FieldDefaults;
@@ -31,7 +33,9 @@ public class TrainingDto {
     @NotBlank(message = "Training type cant be blank")
     String trainingType;
     @NotNull(message = "Date cant be null")
+    @FutureOrPresent(message = "Date must be in the future")
     LocalDate trainingStart;
     @NotNull
-    int duration;
+    @Min(value = 1, message = "Duration must be greater than 0")
+    Integer duration;
 }

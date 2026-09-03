@@ -1,30 +1,26 @@
 package kg.biamino.projects.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.GeneratedValue;
+import org.springframework.data.annotation.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
+import java.util.List;
 
-@Entity
-@Table(name = "trainer_summary")
+@Document(collection = "trainer_summary")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
+@CompoundIndex(name = "firstName_and_lastName_idx", def = "{'firstName' : 1, 'lastName':1}")
 public class TrainerSummary {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    String id;
     String username;
     String firstName;
     String lastName;
-    Boolean active;
-    LocalDate trainingDate;
-    Integer duration;
+    Boolean status;
+    List<Years> years;
 }
