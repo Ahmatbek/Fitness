@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kg.biamino.projects.dto.TrainingCreatedDto;
 import kg.biamino.projects.dto.TrainingDto;
+import kg.biamino.projects.model.Training;
 import kg.biamino.projects.service.TrainingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,15 +27,15 @@ public class TrainingController {
     @PostMapping
     @Operation(summary = "add a new training")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "training created"),
+            @ApiResponse(responseCode = "200", description = "training created, id returned"),
             @ApiResponse(responseCode = "400", description = "required fields missing or invalid"),
             @ApiResponse(responseCode = "401", description = "authentication failed"),
             @ApiResponse(responseCode = "404", description = "trainee, trainer or training type doesnt exist")
     })
     @PreAuthorize("hasAuthority('TRAINER')")
-    public ResponseEntity<?> createTraining(@Valid @RequestBody TrainingDto trainingDto) {
-        trainingService.createTraining(trainingDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<TrainingCreatedDto> createTraining(@Valid @RequestBody TrainingDto trainingDto) {
+        Training training = trainingService.createTraining(trainingDto);
+        return ResponseEntity.ok(TrainingCreatedDto.builder().id(training.getId()).build());
     }
 
     @PreAuthorize("hasAuthority('TRAINER')")

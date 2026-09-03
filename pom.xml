@@ -18,6 +18,7 @@
         <module>EurekuServer</module>
         <module>fitness</module>
         <module>shared-libs</module>
+        <module>integration-tests</module>
     </modules>
     <properties>
         <java.version>21</java.version>
