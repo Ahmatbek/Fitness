@@ -14,8 +14,11 @@ import kg.biamino.projects.dto.TokenResponseDto;
 import kg.biamino.projects.service.AuthService;
 import kg.biamino.projects.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import java.security.Principal;
 import java.util.Date;
 

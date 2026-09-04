@@ -2,9 +2,6 @@ package kg.biamino.projects.service;
 
 import kg.biamino.projects.dto.*;
 import kg.biamino.projects.model.Trainee;
-import kg.biamino.projects.model.Trainer;
-import kg.biamino.projects.model.Training;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

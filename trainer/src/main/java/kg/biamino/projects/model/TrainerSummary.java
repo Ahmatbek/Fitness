@@ -7,7 +7,6 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
-import kg.biamino.projects.model.YearsEntity;
 
 import java.util.List;
 

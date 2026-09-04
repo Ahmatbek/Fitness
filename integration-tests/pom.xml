@@ -20,13 +20,6 @@
     </properties>
 
     <dependencies>
-        <!--
-            This module deliberately never boots a Spring context of its own: it drives the real
-            fitness and trainer services as separate OS processes purely over HTTP, so there is no
-            risk of their component scans (both under kg.biamino.projects) colliding in one context.
-            fitness/trainer are declared only to force Maven reactor build order (so their jars exist
-            before this module's tests run) and are never imported by test code except shared-libs' DTOs.
-        -->
         <dependency>
             <groupId>kg.biamino.projects</groupId>
             <artifactId>fitness</artifactId>
