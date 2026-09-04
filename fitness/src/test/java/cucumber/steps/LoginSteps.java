@@ -1,7 +1,9 @@
 package cucumber.steps;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import io.restassured.response.Response;
 import io.cucumber.java.en.Given;

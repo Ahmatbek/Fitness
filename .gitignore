@@ -12,7 +12,6 @@ target/
 *.iml
 *.ipr
 target
-.claude
 
 ### Eclipse ###
 .apt_generated
