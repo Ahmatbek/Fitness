@@ -7,7 +7,7 @@ import kg.biamino.projects.enums.ActionType;
 import kg.biamino.projects.exception.TrainerNotFoundException;
 import kg.biamino.projects.model.Month;
 import kg.biamino.projects.model.TrainerSummary;
-import kg.biamino.projects.model.Years;
+import kg.biamino.projects.model.YearsEntity;
 import kg.biamino.projects.repository.TrainerSummaryRepository;
 import kg.biamino.projects.service.impl.TrainerSummaryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +65,7 @@ class TrainerSummaryServiceImplTest {
         return request;
     }
 
-    private TrainerSummary existingSummary(List<Years> years) {
+    private TrainerSummary existingSummary(List<YearsEntity> years) {
         TrainerSummary summary = new TrainerSummary();
         summary.setUsername(USERNAME);
         summary.setFirstName("Bekzat");
@@ -89,7 +89,7 @@ class TrainerSummaryServiceImplTest {
         assertEquals("Isakov", saved.getLastName());
         assertEquals(Boolean.TRUE, saved.getStatus());
         assertEquals(1, saved.getYears().size());
-        Years years = saved.getYears().get(0);
+        YearsEntity years = saved.getYears().get(0);
         assertEquals(YEAR, years.getYear());
         assertEquals(1, years.getMonths().size());
         assertEquals(MONTH, years.getMonths().get(0).getMonth());
@@ -99,7 +99,7 @@ class TrainerSummaryServiceImplTest {
     @Test
     void updateTrainerWorkload_existingYearAndMonth_addAction_incrementsDuration() {
         TrainerSummary existing = existingSummary(new ArrayList<>(List.of(
-                new Years(YEAR, new ArrayList<>(List.of(new Month(MONTH, 30))))
+                new YearsEntity(YEAR, new ArrayList<>(List.of(new Month(MONTH, 30))))
         )));
         when(trainerSummaryRepository.findByUsername(USERNAME)).thenReturn(Optional.of(existing));
 
@@ -107,7 +107,7 @@ class TrainerSummaryServiceImplTest {
 
         ArgumentCaptor<TrainerSummary> captor = ArgumentCaptor.forClass(TrainerSummary.class);
         verify(trainerSummaryRepository).save(captor.capture());
-        List<Years> years = captor.getValue().getYears();
+        List<YearsEntity> years = captor.getValue().getYears();
         assertEquals(1, years.size());
         assertEquals(50, years.get(0).getMonths().get(0).getDuration());
     }
@@ -115,7 +115,7 @@ class TrainerSummaryServiceImplTest {
     @Test
     void updateTrainerWorkload_existingYearAndMonth_deleteAction_decrementsDurationFlooredAtZero() {
         TrainerSummary existing = existingSummary(new ArrayList<>(List.of(
-                new Years(YEAR, new ArrayList<>(List.of(new Month(MONTH, 30))))
+                new YearsEntity(YEAR, new ArrayList<>(List.of(new Month(MONTH, 30))))
         )));
         when(trainerSummaryRepository.findByUsername(USERNAME)).thenReturn(Optional.of(existing));
 
@@ -130,7 +130,7 @@ class TrainerSummaryServiceImplTest {
     void updateTrainerWorkload_existingYearNewMonth_appendsMonthToYear() {
         int otherMonth = MONTH == 1 ? 2 : MONTH - 1;
         TrainerSummary existing = existingSummary(new ArrayList<>(List.of(
-                new Years(YEAR, new ArrayList<>(List.of(new Month(otherMonth, 15))))
+                new YearsEntity(YEAR, new ArrayList<>(List.of(new Month(otherMonth, 15))))
         )));
         when(trainerSummaryRepository.findByUsername(USERNAME)).thenReturn(Optional.of(existing));
 
@@ -138,7 +138,7 @@ class TrainerSummaryServiceImplTest {
 
         ArgumentCaptor<TrainerSummary> captor = ArgumentCaptor.forClass(TrainerSummary.class);
         verify(trainerSummaryRepository).save(captor.capture());
-        List<Years> years = captor.getValue().getYears();
+        List<YearsEntity> years = captor.getValue().getYears();
         assertEquals(1, years.size());
         assertEquals(2, years.get(0).getMonths().size());
         assertTrue(years.get(0).getMonths().stream()
@@ -149,7 +149,7 @@ class TrainerSummaryServiceImplTest {
     void updateTrainerWorkload_newYear_appendsYearToExistingTrainer() {
         int otherYear = YEAR - 1;
         TrainerSummary existing = existingSummary(new ArrayList<>(List.of(
-                new Years(otherYear, new ArrayList<>(List.of(new Month(MONTH, 15))))
+                new YearsEntity(otherYear, new ArrayList<>(List.of(new Month(MONTH, 15))))
         )));
         when(trainerSummaryRepository.findByUsername(USERNAME)).thenReturn(Optional.of(existing));
 
@@ -157,7 +157,7 @@ class TrainerSummaryServiceImplTest {
 
         ArgumentCaptor<TrainerSummary> captor = ArgumentCaptor.forClass(TrainerSummary.class);
         verify(trainerSummaryRepository).save(captor.capture());
-        List<Years> years = captor.getValue().getYears();
+        List<YearsEntity> years = captor.getValue().getYears();
         assertEquals(2, years.size());
         assertTrue(years.stream().anyMatch(y -> y.getYear().equals(YEAR)
                 && y.getMonths().stream().anyMatch(m -> m.getMonth().equals(MONTH) && m.getDuration().equals(45))));
@@ -239,7 +239,7 @@ class TrainerSummaryServiceImplTest {
     @Test
     void getMonthlySummaryByTrainerUsername_found_returnsMappedResponse() {
         TrainerSummary existing = existingSummary(new ArrayList<>(List.of(
-                new Years(YEAR, new ArrayList<>(List.of(new Month(MONTH, 90))))
+                new YearsEntity(YEAR, new ArrayList<>(List.of(new Month(MONTH, 90))))
         )));
         when(trainerSummaryRepository.findByUsername(USERNAME)).thenReturn(Optional.of(existing));
 

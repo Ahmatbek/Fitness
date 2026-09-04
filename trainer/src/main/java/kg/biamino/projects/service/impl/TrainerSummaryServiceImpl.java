@@ -8,7 +8,7 @@ import kg.biamino.projects.dto.YearsDto;
 import kg.biamino.projects.exception.TrainerNotFoundException;
 import kg.biamino.projects.model.Month;
 import kg.biamino.projects.model.TrainerSummary;
-import kg.biamino.projects.model.Years;
+import kg.biamino.projects.model.YearsEntity;
 import kg.biamino.projects.repository.TrainerSummaryRepository;
 import kg.biamino.projects.service.TrainerSummaryService;
 import lombok.NonNull;
@@ -71,7 +71,7 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
         newTrainerSummary.setLastName(trainerWorkloadRequest.getTrainerLastName());
         newTrainerSummary.setStatus(trainerWorkloadRequest.isActive());
         newTrainerSummary.setYears(
-                List.of(new Years(trainerWorkloadRequest.getTrainingDate().getYear(),
+                List.of(new YearsEntity(trainerWorkloadRequest.getTrainingDate().getYear(),
                         List.of(new Month(trainerWorkloadRequest.getTrainingDate().getMonth().getValue(), trainerWorkloadRequest.getTrainingDuration())))));
         return newTrainerSummary;
     }
@@ -95,7 +95,7 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
         Integer month = trainerWorkloadRequest.getTrainingDate().getMonth().getValue();
         int duration = trainerWorkloadRequest.getTrainingDuration();
         AtomicReference<Boolean> isExistingMonth= new AtomicReference<>(false);
-        List<Years> years = trainerSummary.getYears();
+        List<YearsEntity> years = trainerSummary.getYears();
 
         years.stream()
                 .filter(e -> e.getYear().equals(year))
@@ -107,9 +107,9 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
                 .ifPresent(m -> deleteOrAddDuration(m, duration, trainerWorkloadRequest, isExistingMonth));
 
         boolean yearFound = false;
-        ListIterator<Years> iterator = years.listIterator();
+        ListIterator<YearsEntity> iterator = years.listIterator();
         while (Boolean.FALSE.equals(isExistingMonth.get()) && iterator.hasNext()) {
-            Years y = iterator.next();
+            YearsEntity y = iterator.next();
             if (year.equals(y.getYear())) {
                 yearFound = true;
                y.getMonths().add(new Month(month, duration));
@@ -117,7 +117,7 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
             }
         }
         if (Boolean.FALSE.equals(isExistingMonth.get()) && !yearFound) {
-            years.add(new Years(year, new ArrayList<>(List.of(new Month(month, duration)))));
+            years.add(new YearsEntity(year, new ArrayList<>(List.of(new Month(month, duration)))));
         }
 
         trainerSummary.setYears(years);
@@ -135,7 +135,7 @@ public class TrainerSummaryServiceImpl implements TrainerSummaryService {
 
         return trainerSummaryResponse;
     }
-    private YearsDto mapper(Years years){
+    private YearsDto mapper(YearsEntity years){
         YearsDto yearsDto = new YearsDto();
         yearsDto.setYear(years.getYear());
         yearsDto.setMonthDtoList(years.getMonths().stream()

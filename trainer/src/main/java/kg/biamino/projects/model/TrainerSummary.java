@@ -22,5 +22,5 @@ public class TrainerSummary {
     String firstName;
     String lastName;
     Boolean status;
-    List<Years> years;
+    List<YearsEntity> years;
 }

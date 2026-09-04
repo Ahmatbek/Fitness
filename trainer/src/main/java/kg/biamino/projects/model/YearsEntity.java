@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Years {
+public class YearsEntity {
     Integer year;
     List<Month> months;
 }
