@@ -97,7 +97,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- integration tests boot two real JVMs + three containers; keep them out of the fast unit/component loop -->
                     <skipTests>${skip.integration.tests}</skipTests>
                 </configuration>
             </plugin>
