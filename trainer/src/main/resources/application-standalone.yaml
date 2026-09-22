@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/trainer?serverSelectionTimeoutMS=2000
+      auto-index-creation: false
+
+  activemq:
+    broker-url: vm://standalone?broker.persistent=false&broker.useJmx=false
+    user: ""
+    password: ""
+
+eureka:
+  client:
+    enabled: false
